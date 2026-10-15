@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adhiṭṭhāna — Strong Determination Sitting | Zabir & Soham</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- App Stylesheets -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Animated Cosmic Background Canvas -->
+  <canvas id="zen-canvas"></canvas>
+
+  <!-- Ambient Glowing Orbs -->
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+
+  <div class="app-container">
+
+    <!-- Top Navigation & Profile Bar -->
+    <header class="app-header">
+      <div class="brand-section">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">ADHIṬṬHĀNA</div>
+          <div class="brand-subtitle">Zabir &amp; Soham &bull; Brotherhood of Stillness</div>
+        </div>
+      </div>
+
+      <!-- Active User Profile Switcher -->
+      <div class="user-toggle-group">
+        <button class="user-toggle-btn btn-zabir active-user" data-set-user="Zabir">
+          <span class="user-dot"></span> Zabir
+        </button>
+        <button class="user-toggle-btn btn-soham" data-set-user="Soham">
+          <span class="user-dot"></span> Soham
+        </button>
+      </div>
+
+      <!-- Audio & Sync Controls -->
+      <div class="header-actions">
+        <button id="btn-toggle-sound" class="btn-icon-text" title="Toggle Sound">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+          </svg>
+          Audio On
+        </button>
+        <button id="btn-toggle-drone" class="btn-icon-text" title="Toggle 432Hz Ambient Resonance">
+          🎵 432Hz Drone
+        </button>
+        <button id="btn-test-bell" class="btn-icon-text" title="Ring Tibetan Singing Bowl">
+          🔔 Ring Bell
+        </button>
+        <button id="btn-open-sync" class="btn-icon-text" title="Multi-device Cloud Sync & Backup">
+          <span id="sync-indicator" class="sync-pill"><span class="dot green"></span> Sync</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="nav-tab active" data-target="tab-dashboard">
+        📊 Dashboard &amp; Graphs
+      </button>
+      <button class="nav-tab" data-target="tab-timer">
+        ⏳ Live Stillness Timer
+      </button>
+      <button class="nav-tab" data-target="tab-guide">
+        📜 Adhiṭṭhāna Masterclass
+      </button>
+      <button class="nav-tab" data-target="tab-hosting">
+        ☁️ 100% Free Hosting
+      </button>
+    </nav>
+
+    <!-- TAB 1: DASHBOARD & COMPARATIVE GRAPHS -->
+    <section id="tab-dashboard" class="view-panel active">
+      
+      <!-- Combined Brotherhood Hero Summary -->
+      <div class="brotherhood-hero">
+        <div class="hero-header-row">
+          <div class="hero-title">
+            <h1>Brotherhood of Pure Stillness</h1>
+            <div class="hero-subtitle">United pursuit of unbroken determination (Adhiṭṭhāna) without movement.</div>
+          </div>
+          <div class="hero-stats-badge">
+            <div class="hero-stat-item">
+              <span class="stat-label">Total Joint Hours</span>
+              <span id="metric-total-hours" class="stat-val">0.0 hrs</span>
+            </div>
+            <div class="hero-stat-item">
+              <span class="stat-label">Total Sits Logged</span>
+              <span id="metric-total-sits" class="stat-val">0 sits</span>
+            </div>
+            <div class="hero-stat-item">
+              <button id="btn-open-manual-log" class="btn-icon-text" style="background: rgba(0, 245, 212, 0.15); border-color: var(--cyan-primary); color: var(--cyan-primary); font-weight: 700;">
+                + Log Past Sit
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Head-to-Head Cards (Zabir vs Soham) -->
+        <div class="dual-profile-grid">
+          
+          <!-- Zabir Card -->
+          <div class="user-summary-card card-zabir">
+            <div class="card-top">
+              <div class="card-user-info">
+                <div class="avatar-disc cyan">Z</div>
+                <div>
+                  <div class="card-name">Zabir</div>
+                  <div class="card-vow-badge">Vow of Stillness Active</div>
+                </div>
+              </div>
+              <span class="user-pill cyan">Zabir</span>
+            </div>
+            <div class="card-metrics-row">
+              <div class="c-metric">
+                <span class="c-label">Total Time</span>
+                <span id="z-total-mins" class="c-val">0h</span>
+              </div>
+              <div class="c-metric">
+                <span class="c-label">Best Clean Sit</span>
+                <span id="z-longest-sit" class="c-val">0m</span>
+              </div>
+              <div class="c-metric">
+                <span class="c-label">Sits / Timeouts</span>
+                <span id="z-clean-sits" class="c-val">0 / 0</span>
+              </div>
+            </div>
+            <div class="card-footer-pill">
+              <span id="z-completion-rate">0% Stillness Rate</span>
+              <span>Luminous Cyan Flame</span>
+            </div>
+          </div>
+
+          <!-- Soham Card -->
+          <div class="user-summary-card card-soham">
+            <div class="card-top">
+              <div class="card-user-info">
+                <div class="avatar-disc purple">S</div>
+                <div>
+                  <div class="card-name">Soham</div>
+                  <div class="card-vow-badge">Vow of Stillness Active</div>
+                </div>
+              </div>
+              <span class="user-pill purple">Soham</span>
+            </div>
+            <div class="card-metrics-row">
+              <div class="c-metric">
+                <span class="c-label">Total Time</span>
+                <span id="s-total-mins" class="c-val">0h</span>
+              </div>
+              <div class="c-metric">
+                <span class="c-label">Best Clean Sit</span>
+                <span id="s-longest-sit" class="c-val">0m</span>
+              </div>
+              <div class="c-metric">
+                <span class="c-label">Sits / Timeouts</span>
+                <span id="s-clean-sits" class="c-val">0 / 0</span>
+              </div>
+            </div>
+            <div class="card-footer-pill">
+              <span id="s-completion-rate">0% Stillness Rate</span>
+              <span>Sacred Violet Flame</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Progress Graphs Section -->
+      <div class="charts-grid">
+        
+        <!-- Comparative Timeline Line Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              📈 14-Day Meditation Volume (Zabir vs Soham)
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="history-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Stillness vs Movement Ratio Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              🎯 Unbroken Stillness Ratio
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="ratio-chart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Secondary Chart: Sitting Duration Comparison & Activity Heatmap -->
+      <div class="charts-grid">
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              ⚖️ Head-to-Head Sit Comparison (Avg &amp; Peak)
+            </div>
+          </div>
+          <div class="chart-container-box">
+            <canvas id="comparison-chart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-header">
+            <div class="chart-title">
+              🗓️ 28-Day Stillness Heatmap
+            </div>
+          </div>
+          <div id="heatmap-grid" class="heatmap-grid"></div>
+        </div>
+      </div>
+
+      <!-- Recent Sits Feed -->
+      <div class="feed-section">
+        <div class="feed-header-row">
+          <div class="feed-title">📜 Shared Meditation Chronicle</div>
+          <div class="feed-filter-pills">
+            <button class="feed-filter-btn active" data-view-filter="both">Both</button>
+            <button class="feed-filter-btn" data-view-filter="Zabir">Zabir Only</button>
+            <button class="feed-filter-btn" data-view-filter="Soham">Soham Only</button>
+          </div>
+        </div>
+
+        <div id="sits-feed-list" class="sits-feed-list">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- TAB 2: LIVE MEDITATION TIMER WITH "I MOVED" PROTOCOL -->
+    <section id="tab-timer" class="view-panel">
+      <div class="timer-section-wrapper">
+        
+        <!-- Target Duration Pill Selector -->
+        <div class="timer-target-selector">
+          <button class="target-pill" data-target-duration="30">30 Min</button>
+          <button class="target-pill" data-target-duration="45">45 Min</button>
+          <button class="target-pill active" data-target-duration="60">60 Min (Adhiṭṭhāna Standard)</button>
+          <button class="target-pill" data-target-duration="90">90 Min (Master)</button>
+        </div>
+
+        <!-- Concentric Animated Pulsing Timer Ring -->
+        <div id="timer-container" class="timer-container">
+          <svg class="timer-svg" viewBox="0 0 300 300">
+            <circle class="timer-ring-bg" cx="150" cy="150" r="135" stroke-width="8" fill="none"/>
+            <circle id="timer-ring-progress" class="timer-ring-progress" cx="150" cy="150" r="135" stroke-width="8" fill="none" stroke-dasharray="848" stroke-dashoffset="0"/>
+          </svg>
+
+          <div class="timer-pulse-aura"></div>
+
+          <div class="timer-content-inner">
+            <div id="timer-current-user" class="timer-user-tag zabir">Zabir</div>
+            <div id="timer-time" class="timer-time">60:00</div>
+            <div id="timer-elapsed-sub" class="timer-elapsed-sub">Stillness Survived: 0m 0s / Goal: 60m</div>
+          </div>
+        </div>
+
+        <!-- Primary Timer Actions -->
+        <div class="timer-actions">
+          <div class="timer-primary-row">
+            <button id="btn-timer-start" class="btn-timer btn-start">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              Enter Stillness (Start)
+            </button>
+            <button id="btn-timer-pause" class="btn-timer btn-pause" style="display: none;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16"/>
+                <rect x="14" y="4" width="4" height="16"/>
+              </svg>
+              Pause
+            </button>
+            <button id="btn-timer-reset" class="btn-timer btn-reset">
+              Reset
+            </button>
+          </div>
+
+          <!-- THE SACRED TIME-OUT BUTTON -->
+          <button id="btn-timer-timeout" class="btn-timeout-movement" style="display: none;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="12 2 2 22 22 22 12 2"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            I Moved (Call Time Out &amp; End Timer)
+          </button>
+        </div>
+
+        <!-- Nervous System Breathing Pacer -->
+        <div class="breathing-pacer-box">
+          <div class="breath-orb-wrap">
+            <div id="breathing-circle" class="breath-orb inhale"></div>
+          </div>
+          <div class="breathing-text-col">
+            <div class="breathing-title">Pre-Sit Nervous System Pacing</div>
+            <div id="breathing-instruction" class="breathing-instruction">Inhale deeply through nose</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 3: MASTERCLASS GUIDE -->
+    <section id="tab-guide" class="view-panel">
+      <div class="guide-hero">
+        <span class="guide-badge">Vipassana Mastery</span>
+        <h2>How Strong Determination Sitting is Done</h2>
+        <p>
+          In Pali, <em>Adhiṭṭhāna</em> signifies unshakeable resolution. Sitting for 60 minutes without shifting a single muscle reprograms your relationship with physical aversion, mental restlessness, and sensation.
+        </p>
+      </div>
+
+      <!-- The 3 Sacred Vows -->
+      <div class="vows-grid">
+        <div class="vow-card vow-1">
+          <div class="vow-num">01</div>
+          <div class="vow-icon">👁️</div>
+          <div class="vow-title">Eyes Firmly Closed</div>
+          <div class="vow-desc">
+            Visual input constitutes 80% of brain stimulation. Closing your eyes turns the lens inward. Even if a sudden sound or shadow arises, do not break the seal of your eyelids.
+          </div>
+        </div>
+
+        <div class="vow-card vow-2">
+          <div class="vow-num">02</div>
+          <div class="vow-icon">🤲</div>
+          <div class="vow-title">Hands &amp; Arms Motionless</div>
+          <div class="vow-desc">
+            Rest your hands gently in your lap or on your knees. When an itch strikes your face or nose, do not lift a finger. Observe the sensation peak, burn, and dissolve.
+          </div>
+        </div>
+
+        <div class="vow-card vow-3">
+          <div class="vow-num">03</div>
+          <div class="vow-icon">🧘</div>
+          <div class="vow-title">Legs &amp; Posture Locked</div>
+          <div class="vow-desc">
+            No uncrossing legs, no slouching, no micro-shifting to relieve pressure. Anchor your seat like a granite mountain. The posture set at minute 0 remains at minute 60.
+          </div>
+        </div>
+      </div>
+
+      <!-- In-Depth Instructions -->
+      <div class="guide-content-cards">
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>🛡️</span> The Rule of Movement: "Honest Time Out"
+          </div>
+          <p style="color: var(--text-muted); margin-bottom: 0.8rem;">
+            Strong determination sitting requires absolute honesty. If pain becomes so intense that you shift your posture, scratch your skin, or open your eyes, <strong>you must immediately press "I Moved (Call Time Out)"</strong>.
+          </p>
+          <p style="color: var(--text-muted);">
+            Calling Time Out is not a defeat. It records the exact minute and second your stillness held (e.g., 42 minutes). By logging the sensation that prompted the move, both Zabir and Soham can track their progressive threshold expansion over weeks.
+          </p>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>🌊</span> The "Urge Surfing" Technique (Surviving the Fire)
+          </div>
+          <p style="color: var(--text-muted); margin-bottom: 0.8rem;">
+            Between minute 35 and 50, intense sensations will arise—heat, throbbing, knife-like burning in hips or knees, violent urges to fidget. The brain panics and sends urgent signals to move.
+          </p>
+          <ul style="color: var(--text-muted); padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <li><strong>Deconstruct the Sensation:</strong> Instead of labeling it "terrible pain", zoom in like a scientist. Is it temperature (hot/cold)? Pressure (heavy/light)? Vibration (tingling/throbbing)?</li>
+            <li><strong>Watch the Anicca (Impermanence):</strong> Sensations rise in waves like an ocean swell. They peak, stay intense, and inevitably shift or break. Ride the crest of the wave with your breath.</li>
+            <li><strong>Relax the Face &amp; Jaw:</strong> The body unconsciously clamps the jaw, forehead, and shoulders when pain arises. Consciously melt these muscles.</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>🪑</span> Optimal Posture Alignments
+          </div>
+          <div class="posture-list">
+            <div class="posture-item">
+              <h4>Burmese Style</h4>
+              <p>Both feet flat on cushion/mat in front of each other, not overlapping. Easiest on ankles and knees for 60m sits.</p>
+            </div>
+            <div class="posture-item">
+              <h4>Half / Full Lotus</h4>
+              <p>One or both feet resting on opposite thighs. Highly stable triangular base. Requires flexible hips.</p>
+            </div>
+            <div class="posture-item">
+              <h4>Seiza (Kneeling Bench)</h4>
+              <p>Kneeling with hips supported on a zafu or angled meditation bench. Keeps the spine naturally upright.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: 100% FREE HOSTING & REAL-TIME SYNC -->
+    <section id="tab-hosting" class="view-panel">
+      <div class="guide-hero">
+        <span class="guide-badge">Zero Cost Forever</span>
+        <h2>How to Host This Website for Free</h2>
+        <p>
+          This application is engineered so you and Soham can host it 100% free forever with real-time multi-device cloud synchronization.
+        </p>
+      </div>
+
+      <div class="guide-content-cards">
+        
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>⚡</span> Option 1: GitHub Pages (Recommended &bull; 100% Free Forever)
+          </div>
+          <ol style="color: var(--text-muted); padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.7rem;">
+            <li>Create a free account on <a href="https://github.com" target="_blank" style="color: var(--cyan-primary);">GitHub.com</a>.</li>
+            <li>Create a new public repository named <code>stargate-sits</code> or <code>adhitthana</code>.</li>
+            <li>Upload all the files in this folder (<code>index.html</code>, <code>styles.css</code>, <code>app.js</code>, <code>charts.js</code>, <code>canvas-bg.js</code>, <code>audio-synth.js</code>, <code>sync.js</code>).</li>
+            <li>Go to <strong>Settings &rarr; Pages &rarr; Branch: main &rarr; Save</strong>.</li>
+            <li>Within 60 seconds, GitHub gives you a live free URL: <code>https://yourusername.github.io/adhitthana</code>! Both Zabir and Soham can bookmark it on iPhone, Android, and laptops.</li>
+          </ol>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>▲</span> Option 2: Vercel / Netlify / Cloudflare Pages (Drag &amp; Drop Free Deploy)
+          </div>
+          <p style="color: var(--text-muted); margin-bottom: 0.6rem;">
+            Go to <a href="https://vercel.com" target="_blank" style="color: var(--cyan-primary);">vercel.com</a> or <a href="https://netlify.com" target="_blank" style="color: var(--cyan-primary);">netlify.com</a>:
+          </p>
+          <ul style="color: var(--text-muted); padding-left: 1.4rem; display: flex; flex-direction: column; gap: 0.5rem;">
+            <li>Sign in with free account.</li>
+            <li>Drag &amp; drop the <code>adhitthana</code> folder directly into their deploy window.</li>
+            <li>Instant global SSL link generated in under 10 seconds!</li>
+          </ul>
+        </div>
+
+        <div class="guide-card">
+          <div class="guide-card-title">
+            <span>🔄</span> Real-Time Cloud Synchronization
+          </div>
+          <p style="color: var(--text-muted); margin-bottom: 0.8rem;">
+            Currently, the app synchronizes across your devices using the shared room code <code>zabir-soham</code>. Whenever either of you logs a sit on your phone or laptop, the other person receives it instantly!
+          </p>
+          <div style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-subtle);">
+            <strong>Local Offline Mode:</strong> If you prefer to run it locally on your computer, simply run:
+            <pre style="color: var(--cyan-primary); margin-top: 0.5rem; font-family: monospace;">python3 server.py</pre>
+            and open <code>http://localhost:8000</code> in your browser!
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===================================================================
+       MODALS
+       =================================================================== -->
+
+  <!-- Modal 1: The Strong Determination "Time Out" Reflection -->
+  <div id="modal-timeout" class="modal-overlay">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <button class="modal-close">&times;</button>
+      <div class="modal-header">
+        <div class="modal-title rose">
+          <span>⚠️</span> Movement Logged (Time Out)
+        </div>
+        <div class="modal-subtitle">
+          Stillness ended for <strong id="timeout-user-display" style="color:#FFF;">Zabir</strong> after <span id="timeout-survived-display" style="color:var(--rose-timeout); font-weight:700;">0m</span> of a <span id="timeout-target-display">60m</span> sit.
+        </div>
+      </div>
+
+      <form id="form-timeout-log">
+        <input type="hidden" id="timeout-user-input" value="Zabir">
+        <input type="hidden" id="timeout-minutes-input" value="0">
+        <input type="hidden" id="timeout-target-input" value="60">
+
+        <div class="form-group">
+          <label class="form-label">What triggered the movement?</label>
+          <select id="timeout-reason-select" class="form-select">
+            <option value="Intense burning pain in knees / hips">Intense burning pain in knees / hips</option>
+            <option value="Violent itch or sensory tickle">Violent itch or sensory tickle</option>
+            <option value="Mental storm / restlessness panic">Mental storm / restlessness panic</option>
+            <option value="Foot numbness &amp; pins/needles">Foot numbness &amp; pins/needles</option>
+            <option value="Slumped spine / loss of alignment">Slumped spine / loss of alignment</option>
+            <option value="External sound or interruption">External sound or interruption</option>
+            <option value="Physical safety / joint relief">Physical safety / joint relief</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mindfulness Reflection (What was the sensation?)</label>
+          <textarea id="timeout-notes" class="form-textarea" placeholder="Describe the physical sensation right before you moved..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-form-submit rose">
+          Record Time Out &amp; Save Learning
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Victory Celebration (Unbroken Stillness Reached) -->
+  <div id="modal-victory" class="modal-overlay">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card" style="text-align: center;">
+      <button class="modal-close">&times;</button>
+      <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">🏆</div>
+      <div class="modal-title gold" style="justify-content: center; margin-bottom: 0.5rem;">
+        Adhiṭṭhāna Accomplished!
+      </div>
+      <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+        Honored meditator <strong id="victory-user" style="color: #FFF;">Zabir</strong> has completed <strong id="victory-time" style="color: var(--gold-primary);">60 Minutes</strong> of unbroken stillness without moving a single muscle!
+      </p>
+      <button class="btn-form-submit" onclick="window.app.closeModals(); window.app.switchTab('tab-dashboard');">
+        Honor the Stillness &amp; View Progress
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal 3: Manual Sit Logger -->
+  <div id="modal-manual-log" class="modal-overlay">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <button class="modal-close">&times;</button>
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>✍️</span> Log Offline Meditation Sit
+        </div>
+        <div class="modal-subtitle">Record a sit completed away from your screen.</div>
+      </div>
+
+      <form id="form-manual-log">
+        <div class="form-group">
+          <label class="form-label">Meditator</label>
+          <select id="manual-user-select" class="form-select">
+            <option value="Zabir">Zabir</option>
+            <option value="Soham">Soham</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="manual-date" class="form-input">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Actual Minutes</label>
+            <input type="number" id="manual-duration" class="form-input" min="1" max="300" placeholder="e.g. 60" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Goal (mins)</label>
+            <input type="number" id="manual-target" class="form-input" min="1" max="300" placeholder="e.g. 60">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Stillness Outcome</label>
+          <select id="manual-status-select" class="form-select">
+            <option value="completed">🏆 Full Stillness (Zero Movement)</option>
+            <option value="timeout">⚠️ Moved / Called Time Out</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Movement Trigger (if moved)</label>
+          <input type="text" id="manual-reason" class="form-input" placeholder="e.g. Knee pain, scratch, foot cramp">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Reflection / Mind State</label>
+          <textarea id="manual-reflection" class="form-textarea" placeholder="How did you relate to sensations?"></textarea>
+        </div>
+
+        <button type="submit" class="btn-form-submit">
+          Save Meditation Sit
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Sync & Backup Modal -->
+  <div id="modal-sync" class="modal-overlay">
+    <div class="modal-backdrop"></div>
+    <div class="modal-card">
+      <button class="modal-close">&times;</button>
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>☁️</span> Multi-Device Sync &amp; Backup
+        </div>
+        <div class="modal-subtitle">Sync sits between Zabir &amp; Soham across devices.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Shared Room Code</label>
+        <div style="display: flex; gap: 0.6rem;">
+          <input type="text" id="input-room-code" class="form-input" value="zabir-soham">
+          <button id="btn-save-room" class="btn-icon-text" style="background: var(--cyan-primary); color: #000; font-weight:700;">Connect</button>
+        </div>
+        <small style="color: var(--text-dim); display:block; margin-top:0.4rem;">
+          Keep this room code identical on both Zabir's and Soham's devices to share all sits.
+        </small>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
+        <label class="form-label">Data Backup</label>
+        <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
+          <button id="btn-export-json" class="btn-icon-text" style="flex: 1; justify-content: center;">
+            📥 Export JSON
+          </button>
+          <label class="btn-icon-text" style="flex: 1; justify-content: center; cursor: pointer;">
+            📤 Import JSON
+            <input type="file" id="input-import-json" accept=".json" style="display: none;">
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Mount -->
+  <div id="toast-container"></div>
+
+  <!-- Application Logic Scripts -->
+  <script src="audio-synth.js"></script>
+  <script src="canvas-bg.js"></script>
+  <script src="sync.js"></script>
+  <script src="charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
