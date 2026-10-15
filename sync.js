@@ -9,7 +9,7 @@
  */
 class SyncManager {
   constructor() {
-    this.storageKey = 'adhitthana_sits_v1';
+    this.storageKey = 'adhitthana_sits_v2';
     this.roomKey = 'adhitthana_room_code';
     this.firebaseConfigKey = 'adhitthana_firebase_cfg';
     this.activeRoom = localStorage.getItem(this.roomKey) || 'zabir-soham';
