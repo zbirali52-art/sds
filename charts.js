@@ -247,13 +247,15 @@ class ZenCharts {
       this.ratioChart.destroy();
     }
 
+    const isEmpty = (cleanSits === 0 && movedSits === 0);
+
     this.ratioChart = new Chart(ctx, {
       type: 'doughnut',
       data: {
-        labels: ['Unbroken Stillness (Target Achieved)', 'Movement (Time Out Called)'],
+        labels: isEmpty ? ['Awaiting First Sit'] : ['Unbroken Stillness (Target Achieved)', 'Movement (Time Out Called)'],
         datasets: [{
-          data: [cleanSits || 1, movedSits || 0],
-          backgroundColor: [
+          data: isEmpty ? [1] : [cleanSits, movedSits],
+          backgroundColor: isEmpty ? ['rgba(255, 255, 255, 0.08)'] : [
             'rgba(0, 245, 212, 0.85)',
             'rgba(247, 37, 133, 0.75)'
           ],
