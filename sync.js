@@ -29,128 +29,31 @@ class SyncManager {
   }
 
   /**
-   * Initial default seed data for Zabir & Soham if storage is empty
+   * Fresh start: No mock data. Starts completely clean for Zabir & Soham.
    */
   getDefaultData() {
-    const today = new Date();
-    const d = (daysAgo) => {
-      const date = new Date(today);
-      date.setDate(date.getDate() - daysAgo);
-      return date.toISOString().split('T')[0];
-    };
-
-    return [
-      {
-        id: 'sit_1',
-        user: 'Zabir',
-        date: d(6),
-        durationMinutes: 45,
-        targetMinutes: 45,
-        status: 'completed', // 'completed' | 'timeout'
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'Deep stillness achieved. Watched knee pain rise and dissolve without moving.',
-        timestamp: Date.now() - 6 * 86400000
-      },
-      {
-        id: 'sit_2',
-        user: 'Soham',
-        date: d(6),
-        durationMinutes: 40,
-        targetMinutes: 45,
-        status: 'timeout',
-        movedAtMinutes: 40,
-        movementReason: 'Intense burning sensations in right foot',
-        reflection: 'Called time out at 40m. Strong determination broke when tingling became numb.',
-        timestamp: Date.now() - 6 * 86400000 + 3600000
-      },
-      {
-        id: 'sit_3',
-        user: 'Zabir',
-        date: d(5),
-        durationMinutes: 60,
-        targetMinutes: 60,
-        status: 'completed',
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'Full 1-hour sit. Surfed three heavy waves of urge to scratch nose.',
-        timestamp: Date.now() - 5 * 86400000
-      },
-      {
-        id: 'sit_4',
-        user: 'Soham',
-        date: d(4),
-        durationMinutes: 60,
-        targetMinutes: 60,
-        status: 'completed',
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'My first 60m pure stillness sit! Held the posture through the burn.',
-        timestamp: Date.now() - 4 * 86400000
-      },
-      {
-        id: 'sit_5',
-        user: 'Zabir',
-        date: d(3),
-        durationMinutes: 52,
-        targetMinutes: 60,
-        status: 'timeout',
-        movedAtMinutes: 52,
-        movementReason: 'Lower back muscle spasms',
-        reflection: 'Survived 52 minutes without a twitch. Ended with time out when back seized.',
-        timestamp: Date.now() - 3 * 86400000
-      },
-      {
-        id: 'sit_6',
-        user: 'Soham',
-        date: d(2),
-        durationMinutes: 60,
-        targetMinutes: 60,
-        status: 'completed',
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'Breathed into the tightness. Total equanimity for 1 hour.',
-        timestamp: Date.now() - 2 * 86400000
-      },
-      {
-        id: 'sit_7',
-        user: 'Zabir',
-        date: d(1),
-        durationMinutes: 60,
-        targetMinutes: 60,
-        status: 'completed',
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'Flawless 60m Adhitthana sit. Silence in the mind.',
-        timestamp: Date.now() - 1 * 86400000
-      },
-      {
-        id: 'sit_8',
-        user: 'Soham',
-        date: d(0),
-        durationMinutes: 75,
-        targetMinutes: 75,
-        status: 'completed',
-        movedAtMinutes: null,
-        movementReason: null,
-        reflection: 'New personal record: 75 minutes of unbroken stillness!',
-        timestamp: Date.now() - 14400000
-      }
-    ];
+    return [];
   }
 
   loadLocal() {
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) {
-        const defaults = this.getDefaultData();
-        this.saveLocal(defaults);
-        return defaults;
+        return [];
       }
-      return JSON.parse(raw);
+      let parsed = JSON.parse(raw);
+      // Remove any legacy sample seed sits
+      if (Array.isArray(parsed)) {
+        const filtered = parsed.filter(s => !s.id || !s.id.match(/^sit_[1-8]$/));
+        if (filtered.length !== parsed.length) {
+          this.saveLocal(filtered);
+          return filtered;
+        }
+      }
+      return parsed || [];
     } catch (e) {
       console.error('Error reading localStorage:', e);
-      return this.getDefaultData();
+      return [];
     }
   }
 
