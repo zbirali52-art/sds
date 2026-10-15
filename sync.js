@@ -29,31 +29,65 @@ class SyncManager {
   }
 
   /**
-   * Fresh start: No mock data. Starts completely clean for Zabir & Soham.
+   * Official real sits for Zabir & Soham Sadhu
    */
   getDefaultData() {
-    return [];
+    return [
+      {
+        id: 'sit_soham_20261015',
+        user: 'Soham',
+        displayName: 'Soham Sadhu',
+        date: '2026-10-15',
+        durationMinutes: 15,
+        displayDuration: '15 mins',
+        targetMinutes: 15,
+        status: 'completed',
+        movedAtMinutes: null,
+        movementReason: null,
+        reflection: '15-minute Strong Determination Sit completed. Maintained stillness on the path to enlightenment.',
+        timestamp: 1792072000000
+      },
+      {
+        id: 'sit_zabir_20261015',
+        user: 'Zabir',
+        displayName: 'Zabir',
+        date: '2026-10-15',
+        durationMinutes: 11.13, // 11 mins 8 secs
+        displayDuration: '11m 8s',
+        targetMinutes: 15,
+        status: 'timeout',
+        movedAtMinutes: 11.13,
+        movementReason: 'Physical burn & urge to move',
+        reflection: 'Called Time Out after 11m 8s of unbroken stillness. Honoring the rule of absolute honesty.',
+        timestamp: 1792072100000
+      }
+    ];
   }
 
   loadLocal() {
     try {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) {
-        return [];
+        const defaults = this.getDefaultData();
+        this.saveLocal(defaults);
+        return defaults;
       }
       let parsed = JSON.parse(raw);
       // Remove any legacy sample seed sits
       if (Array.isArray(parsed)) {
-        const filtered = parsed.filter(s => !s.id || !s.id.match(/^sit_[1-8]$/));
+        let filtered = parsed.filter(s => !s.id || !s.id.match(/^sit_[1-8]$/));
+        if (filtered.length === 0) {
+          filtered = this.getDefaultData();
+        }
         if (filtered.length !== parsed.length) {
           this.saveLocal(filtered);
-          return filtered;
         }
+        return filtered;
       }
-      return parsed || [];
+      return this.getDefaultData();
     } catch (e) {
       console.error('Error reading localStorage:', e);
-      return [];
+      return this.getDefaultData();
     }
   }
 
