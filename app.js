@@ -114,8 +114,9 @@ class AdhitthanaApp {
     });
 
     // Test Bell button
-    document.getElementById('btn-test-bell')?.addEventListener('click', () => {
-      window.zenAudio.playBowl(216, 8);
+    document.getElementById('btn-test-bell')?.addEventListener('click', async () => {
+      await window.zenAudio.playBowl(216, 7);
+      this.showToast('🔔 Singing bowl chime sounded');
     });
 
     // Manual Sit Entry Modal
@@ -228,14 +229,14 @@ class AdhitthanaApp {
     this.updateTimerDisplay();
   }
 
-  startTimer() {
+  async startTimer() {
     if (this.timerIsRunning && !this.timerIsPaused) return;
 
-    window.zenAudio.init();
+    await window.zenAudio.ensureContext();
     if (!this.timerIsPaused) {
       // Starting new session
       this.timerSecondsElapsed = 0;
-      window.zenAudio.playBowl(216, 8); // Start gong
+      await window.zenAudio.playBowl(216, 7); // Start gong
       this.showToast(`Strong Determination Sit started for ${this.currentUser}! Do not move.`);
     }
 
@@ -317,12 +318,12 @@ class AdhitthanaApp {
    * The Crucial Strong Determination Sitting "Time Out" Rule:
    * Called when the meditator moves, scratches, or shifts posture before target is reached.
    */
-  triggerTimeOut() {
+  async triggerTimeOut() {
     clearInterval(this.timerInterval);
     this.timerIsRunning = false;
     this.timerIsPaused = false;
 
-    window.zenAudio.playTimeOutChime();
+    await window.zenAudio.playTimeOutChime();
 
     const elapsedMins = +(this.timerSecondsElapsed / 60).toFixed(1);
     const targetMins = Math.round(this.timerTargetSeconds / 60);
@@ -381,7 +382,7 @@ class AdhitthanaApp {
     this.timerIsRunning = false;
     this.timerIsPaused = false;
 
-    window.zenAudio.playSuccessFanfare();
+    await window.zenAudio.playSuccessFanfare();
 
     const targetMins = Math.round(this.timerTargetSeconds / 60);
 
