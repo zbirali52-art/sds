@@ -1,240 +1,174 @@
 /**
- * CanvasBackground: Interactive Living Cosmos & Sacred Geometry Engine
- * High-performance 60fps moving background with interactive stardust filaments,
- * rotating sacred geometry (Flower of Life / Metatron / Sri Yantra wireframe),
- * and breath-synchronized cosmic ripples.
+ * Aware Cosmic Oceanic Canvas
+ * Interactive bioluminescent water ripple & cosmic plankton simulation
+ * Generates floating light motes that interact with touch and cursor movements.
  */
-class CosmicZenCanvas {
-  constructor(canvasId) {
-    this.canvas = document.getElementById(canvasId);
+
+class OceanCanvas {
+  constructor() {
+    this.canvas = document.getElementById('zen-canvas');
     if (!this.canvas) return;
     this.ctx = this.canvas.getContext('2d');
     this.particles = [];
-    this.numParticles = window.innerWidth < 768 ? 45 : 85;
-    this.mouse = { x: -1000, y: -1000, radius: 140 };
-    this.angle = 0;
-    this.pulse = 0;
-    this.pulseSpeed = 0.015;
-    this.activeTheme = 'cosmic'; // 'cosmic' | 'gold' | 'emerald'
-    this.isRunning = true;
+    this.ripples = [];
+    this.mouse = { x: -1000, y: -1000, active: false };
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+
+    // Adapt particle count for mobile vs desktop
+    const isMobile = window.innerWidth < 768;
+    this.maxParticles = isMobile ? 45 : 90;
 
     this.init();
+    this.bindEvents();
+    this.animate();
   }
 
   init() {
     this.resize();
-    window.addEventListener('resize', () => this.resize());
-
-    window.addEventListener('mousemove', (e) => {
-      this.mouse.x = e.clientX;
-      this.mouse.y = e.clientY;
-    });
-
-    window.addEventListener('touchmove', (e) => {
-      if (e.touches.length > 0) {
-        this.mouse.x = e.touches[0].clientX;
-        this.mouse.y = e.touches[0].clientY;
-      }
-    }, { passive: true });
-
-    window.addEventListener('mouseleave', () => {
-      this.mouse.x = -1000;
-      this.mouse.y = -1000;
-    });
-
-    // Populate particles
     this.particles = [];
-    for (let i = 0; i < this.numParticles; i++) {
+    for (let i = 0; i < this.maxParticles; i++) {
       this.particles.push(this.createParticle());
     }
+  }
 
-    this.animate = this.animate.bind(this);
-    requestAnimationFrame(this.animate);
+  resize() {
+    this.width = window.innerWidth;
+    this.height = window.innerHeight;
+    this.canvas.width = this.width;
+    this.canvas.height = this.height;
   }
 
   createParticle() {
     return {
-      x: Math.random() * this.canvas.width,
-      y: Math.random() * this.canvas.height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      radius: Math.random() * 2.2 + 0.8,
-      baseRadius: Math.random() * 2.2 + 0.8,
-      alpha: Math.random() * 0.6 + 0.2,
+      x: Math.random() * this.width,
+      y: Math.random() * this.height,
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: -0.2 - Math.random() * 0.5, // gentle upward oceanic current
+      radius: 0.8 + Math.random() * 2.2,
+      baseAlpha: 0.15 + Math.random() * 0.55,
+      alpha: 0.2,
+      pulseSpeed: 0.015 + Math.random() * 0.025,
       pulseOffset: Math.random() * Math.PI * 2,
-      colorRgb: Math.random() > 0.4 ? '0, 245, 212' : '121, 40, 202'
+      color: Math.random() > 0.25 
+        ? { r: 56, g: 189, b: 248 }  // Oceanic Cyan
+        : (Math.random() > 0.5 ? { r: 0, g: 245, b: 212 } : { r: 245, g: 158, b: 11 }) // Bioluminescent Aqua / Gold
     };
   }
 
-  resize() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
-    this.centerX = this.canvas.width / 2;
-    this.centerY = this.canvas.height / 2;
+  addRipple(x, y, strength = 1.0) {
+    if (this.ripples.length > 8) this.ripples.shift();
+    this.ripples.push({
+      x,
+      y,
+      radius: 5,
+      maxRadius: 120 * strength,
+      alpha: 0.45 * strength,
+      speed: 1.8 * strength
+    });
   }
 
-  setTheme(theme) {
-    this.activeTheme = theme;
-  }
+  bindEvents() {
+    window.addEventListener('resize', () => {
+      this.resize();
+    }, { passive: true });
 
-  drawSacredGeometry(cx, cy, radius, rotation, breathScale) {
-    const ctx = this.ctx;
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(rotation);
-    ctx.scale(breathScale, breathScale);
+    window.addEventListener('mousemove', (e) => {
+      this.mouse.x = e.clientX;
+      this.mouse.y = e.clientY;
+      this.mouse.active = true;
+      if (Math.random() < 0.12) {
+        this.addRipple(e.clientX, e.clientY, 0.6);
+      }
+    }, { passive: true });
 
-    const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 1.4);
-    grad.addColorStop(0, 'rgba(0, 245, 212, 0.25)');
-    grad.addColorStop(0.5, 'rgba(121, 40, 202, 0.12)');
-    grad.addColorStop(1, 'rgba(10, 11, 20, 0)');
+    window.addEventListener('click', (e) => {
+      this.addRipple(e.clientX, e.clientY, 1.2);
+    }, { passive: true });
 
-    // Ambient radial glow behind geometry
-    ctx.fillStyle = grad;
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 1.5, 0, Math.PI * 2);
-    ctx.fill();
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches[0]) {
+        const t = e.touches[0];
+        this.mouse.x = t.clientX;
+        this.mouse.y = t.clientY;
+        this.mouse.active = true;
+        if (Math.random() < 0.15) {
+          this.addRipple(t.clientX, t.clientY, 0.7);
+        }
+      }
+    }, { passive: true });
 
-    // Outer Concentric Rings
-    ctx.strokeStyle = 'rgba(0, 245, 212, 0.18)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(121, 40, 202, 0.22)';
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.72, 0, Math.PI * 2);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(255, 183, 3, 0.15)';
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.42, 0, Math.PI * 2);
-    ctx.stroke();
-
-    // 12-Fold Sacred Flower of Life nodes
-    const petals = 12;
-    for (let i = 0; i < petals; i++) {
-      const a = (i * Math.PI * 2) / petals;
-      const x = Math.cos(a) * (radius * 0.55);
-      const y = Math.sin(a) * (radius * 0.55);
-
-      ctx.strokeStyle = (i % 2 === 0) ? 'rgba(0, 245, 212, 0.12)' : 'rgba(255, 183, 3, 0.10)';
-      ctx.beginPath();
-      ctx.arc(x, y, radius * 0.55, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Delicate ray from center to perimeter
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(Math.cos(a) * radius, Math.sin(a) * radius);
-      ctx.stroke();
-    }
-
-    // Interlaced sacred triangles (Merkaba / Star of David)
-    ctx.strokeStyle = 'rgba(0, 245, 212, 0.28)';
-    ctx.lineWidth = 1.2;
-    this.drawPolygon(ctx, 0, 0, radius * 0.82, 3, -Math.PI / 2);
-    ctx.strokeStyle = 'rgba(247, 37, 133, 0.25)';
-    this.drawPolygon(ctx, 0, 0, radius * 0.82, 3, Math.PI / 2);
-
-    // Inner dodecagram
-    ctx.strokeStyle = 'rgba(255, 183, 3, 0.25)';
-    this.drawPolygon(ctx, 0, 0, radius * 0.35, 6, 0);
-
-    // Center stillness nucleus
-    ctx.fillStyle = 'rgba(0, 245, 212, 0.7)';
-    ctx.beginPath();
-    ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
-  drawPolygon(ctx, x, y, radius, sides, startAngle) {
-    ctx.beginPath();
-    for (let i = 0; i < sides; i++) {
-      const a = startAngle + (i * 2 * Math.PI) / sides;
-      const px = x + radius * Math.cos(a);
-      const py = y + radius * Math.sin(a);
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.closePath();
-    ctx.stroke();
+    window.addEventListener('touchend', () => {
+      this.mouse.active = false;
+    }, { passive: true });
   }
 
   animate() {
-    if (!this.isRunning) return;
+    this.ctx.clearRect(0, 0, this.width, this.height);
 
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const time = Date.now() * 0.001;
 
-    this.angle += 0.0018;
-    this.pulse += this.pulseSpeed;
-    const breathScale = 1 + Math.sin(this.pulse) * 0.06;
+    // 1. Draw & Expand Water Ripples
+    for (let i = this.ripples.length - 1; i >= 0; i--) {
+      const rip = this.ripples[i];
+      rip.radius += rip.speed;
+      rip.alpha *= 0.965;
 
-    // Draw Sacred Geometry in center
-    const geomRadius = Math.min(this.canvas.width, this.canvas.height) * 0.36;
-    this.drawSacredGeometry(this.centerX, this.centerY, geomRadius, this.angle, breathScale);
-
-    // Animate and render interactive particles & filaments
-    const pts = this.particles;
-    const maxDist = 110;
-
-    for (let i = 0; i < pts.length; i++) {
-      const p = pts[i];
-
-      // Update position
-      p.x += p.vx;
-      p.y += p.vy;
-
-      // Wrap edges
-      if (p.x < -10) p.x = this.canvas.width + 10;
-      if (p.x > this.canvas.width + 10) p.x = -10;
-      if (p.y < -10) p.y = this.canvas.height + 10;
-      if (p.y > this.canvas.height + 10) p.y = -10;
-
-      // Mouse gentle interaction
-      const dxMouse = this.mouse.x - p.x;
-      const dyMouse = this.mouse.y - p.y;
-      const distMouse = Math.hypot(dxMouse, dyMouse);
-      if (distMouse < this.mouse.radius && distMouse > 0) {
-        const force = (1 - distMouse / this.mouse.radius) * 1.5;
-        p.x -= (dxMouse / distMouse) * force;
-        p.y -= (dyMouse / distMouse) * force;
-      }
-
-      // Draw particle
-      const pAlpha = p.alpha * (0.6 + 0.4 * Math.sin(this.pulse + p.pulseOffset));
-      this.ctx.fillStyle = `rgba(${p.colorRgb}, ${pAlpha})`;
+      this.ctx.save();
       this.ctx.beginPath();
-      this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-      this.ctx.fill();
+      this.ctx.arc(rip.x, rip.y, rip.radius, 0, Math.PI * 2);
+      this.ctx.strokeStyle = `rgba(56, 189, 248, ${rip.alpha * 0.6})`;
+      this.ctx.lineWidth = 1.5;
+      this.ctx.shadowColor = 'rgba(0, 245, 212, 0.5)';
+      this.ctx.shadowBlur = 8;
+      this.ctx.stroke();
+      this.ctx.restore();
 
-      // Inter-particle glowing filaments
-      for (let j = i + 1; j < pts.length; j++) {
-        const p2 = pts[j];
-        const dx = p.x - p2.x;
-        const dy = p.y - p2.y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < maxDist) {
-          const lineAlpha = (1 - dist / maxDist) * 0.16;
-          this.ctx.strokeStyle = `rgba(0, 245, 212, ${lineAlpha})`;
-          this.ctx.lineWidth = 0.7;
-          this.ctx.beginPath();
-          this.ctx.moveTo(p.x, p.y);
-          this.ctx.lineTo(p2.x, p2.y);
-          this.ctx.stroke();
-        }
+      if (rip.alpha < 0.01 || rip.radius > rip.maxRadius) {
+        this.ripples.splice(i, 1);
       }
     }
 
-    requestAnimationFrame(this.animate);
+    // 2. Draw Bioluminescent Particles
+    for (let p of this.particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      // Mouse repulsion / wake
+      if (this.mouse.active) {
+        const dx = p.x - this.mouse.x;
+        const dy = p.y - this.mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100 && dist > 0) {
+          const force = (100 - dist) / 100;
+          p.x += (dx / dist) * force * 1.5;
+          p.y += (dy / dist) * force * 1.5;
+        }
+      }
+
+      // Wrap around bounds
+      if (p.x < 0) p.x = this.width;
+      if (p.x > this.width) p.x = 0;
+      if (p.y < 0) p.y = this.height;
+      if (p.y > this.height) p.y = 0;
+
+      // Breathing glow
+      const currentAlpha = p.baseAlpha * (0.6 + 0.4 * Math.sin(time * 2.0 + p.pulseOffset));
+
+      this.ctx.save();
+      this.ctx.beginPath();
+      this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      this.ctx.fillStyle = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, ${currentAlpha})`;
+      this.ctx.shadowColor = `rgba(${p.color.r}, ${p.color.g}, ${p.color.b}, 0.8)`;
+      this.ctx.shadowBlur = p.radius * 4;
+      this.ctx.fill();
+      this.ctx.restore();
+    }
+
+    requestAnimationFrame(() => this.animate());
   }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-  window.cosmicZenCanvas = new CosmicZenCanvas('zen-canvas');
+  window.oceanCanvas = new OceanCanvas();
 });
