@@ -512,11 +512,18 @@ class AdhitthanaApp {
         ? `<span class="badge-icon" title="Unbroken Stillness">🏆 Full Stillness</span>` 
         : `<span class="badge-icon timeout" title="Movement - Time Out">⚠️ Moved (Time Out)</span>`;
 
+      const userName = sit.displayName || (sit.user === 'Soham' ? 'Soham Sadhu' : sit.user);
+      const formattedDuration = sit.displayDuration || (
+        (sit.durationMinutes % 1 !== 0)
+          ? `${Math.floor(sit.durationMinutes)}m ${Math.round((sit.durationMinutes % 1) * 60)}s`
+          : `${sit.durationMinutes} mins`
+      );
+
       return `
         <div class="sit-card ${userClass} ${statusClass}">
           <div class="sit-header">
             <div class="sit-user-meta">
-              <span class="user-pill ${isZabir ? 'cyan' : 'purple'}">${sit.user}</span>
+              <span class="user-pill ${isZabir ? 'cyan' : 'purple'}">${userName}</span>
               <span class="sit-date">${sit.date}</span>
             </div>
             <div class="sit-badges">
@@ -526,9 +533,8 @@ class AdhitthanaApp {
           </div>
           <div class="sit-body">
             <div class="sit-duration-highlight">
-              <span class="duration-num">${sit.durationMinutes}</span>
-              <span class="duration-unit">mins</span>
-              <span class="target-comparison">/ goal ${sit.targetMinutes || sit.durationMinutes}m</span>
+              <span class="duration-num">${formattedDuration}</span>
+              <span class="target-comparison">/ goal ${sit.targetMinutes || Math.ceil(sit.durationMinutes)}m</span>
             </div>
             ${sit.movementReason ? `<div class="movement-callout"><strong>Movement Trigger:</strong> ${sit.movementReason}</div>` : ''}
             <div class="sit-reflection">"${sit.reflection || 'Silent observation.'}"</div>
