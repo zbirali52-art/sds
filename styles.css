@@ -1762,6 +1762,100 @@ html.lenis, html.lenis body {
   backdrop-filter: blur(16px);
 }
 
+
+/* Auto-Sync Realtime Status Card */
+.sync-status-card {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  margin-top: 1rem;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+}
+
+.sync-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.live-dot-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulseGlow 1.8s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #10B981; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.sync-status-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.sync-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  background: rgba(11, 12, 14, 0.6);
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sync-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-meta-item .meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.sync-meta-item .meta-val {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #FFF;
+  font-weight: 700;
+}
+
+.btn-sync-now {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(190, 242, 2, 0.15));
+  border: 1px solid var(--accent-cyan);
+  color: #FFF;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sync-now:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(190, 242, 2, 0.25));
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+}
+
+.sync-section-block {
+  margin-top: 1.15rem;
+}
+
 .modal-card {
   position: relative;
   z-index: 10;
