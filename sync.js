@@ -1,14 +1,16 @@
 /**
- * Adhiṭṭhāna Universal Cloud Sync Engine (v4.0)
- * Real-Time Automatic Multi-Device Synchronization
+ * Adhiṭṭhāna Universal Cloud Sync Engine (v4.2)
+ * Real-Time Automatic Multi-Device Synchronization & Distributed Tombstone Engine
  *
  * Core Capabilities:
  * 1. Zero-Configuration Automatic Cloud Sync across Zabir & Soham's devices.
- * 2. Real-Time GitHub REST API committer & live polling (bypasses CDN cache delay).
- * 3. Conflict-Free Merge Engine: Preserves authentic Day 1 baselines & prevents loss.
- * 4. Background 12s Polling Heartbeat + Mobile Phone Unlock / Focus Auto-Fetch.
- * 5. Cross-Tab / Cross-Window BroadcastChannel instant synchronization.
- * 6. Fallback Peer Link Sharing (?importSit=...) for instant chat/WhatsApp sync.
+ * 2. Distributed Tombstone Engine: Deletions permanently sync across all devices
+ *    and can NEVER be resurrected by polling, tab switching, or peer merges.
+ * 3. Real-Time GitHub REST API committer & live polling (bypasses CDN cache delay).
+ * 4. Conflict-Free Merge Engine: Preserves authentic Day 1 baselines & prevents data loss.
+ * 5. Background 12s Polling Heartbeat + Mobile Phone Unlock / Focus Auto-Fetch.
+ * 6. Cross-Tab / Cross-Window BroadcastChannel instant synchronization.
+ * 7. Fallback Peer Link Sharing (?importSit=...) for instant chat/WhatsApp sync.
  */
 
 // Obfuscated auto-sync key for shared crucible repository
@@ -21,6 +23,7 @@ function getAutoSyncKey() {
 class SyncManager {
   constructor() {
     this.storageKey = 'adhitthana_sits_v3';
+    this.tombstonesKey = 'adhitthana_deleted_sits_v1';
     this.goalsKey = 'adhitthana_user_goals_v1';
     this.roomKey = 'adhitthana_room_code';
     this.githubTokenKey = 'adhitthana_gh_pat';
@@ -49,6 +52,70 @@ class SyncManager {
     // Initialize boot sync and background listeners
     this.initBootSync();
     this.initHeartbeat();
+  }
+
+  /* ---------------- TOMBSTONE & DELETION ENGINE ---------------- */
+
+  getDeletedIds() {
+    try {
+      const raw = localStorage.getItem(this.tombstonesKey);
+      if (raw) {
+        const arr = JSON.parse(raw);
+        if (Array.isArray(arr)) return new Set(arr);
+      }
+    } catch (e) {}
+    return new Set();
+  }
+
+  addDeletedId(id) {
+    if (!id) return;
+    const set = this.getDeletedIds();
+    set.add(id);
+    try {
+      localStorage.setItem(this.tombstonesKey, JSON.stringify(Array.from(set)));
+    } catch (e) {}
+  }
+
+  addDeletedIds(ids) {
+    if (!Array.isArray(ids) || ids.length === 0) return;
+    const set = this.getDeletedIds();
+    let changed = false;
+    ids.forEach(id => {
+      if (id && !set.has(id)) {
+        set.add(id);
+        changed = true;
+      }
+    });
+    if (changed) {
+      try {
+        localStorage.setItem(this.tombstonesKey, JSON.stringify(Array.from(set)));
+      } catch (e) {}
+    }
+  }
+
+  isDeleted(id) {
+    return this.getDeletedIds().has(id);
+  }
+
+  /**
+   * Normalizes cloud payload whether it's modern { sits, deletedIds } or legacy array [ ... ]
+   */
+  parsePayload(raw) {
+    let sits = [];
+    let deletedIds = [];
+    if (Array.isArray(raw)) {
+      raw.forEach(item => {
+        if (item && item.deleted && item.id) {
+          deletedIds.push(item.id);
+        } else if (item && item.id) {
+          sits.push(item);
+        }
+      });
+    } else if (raw && typeof raw === 'object') {
+      if (Array.isArray(raw.sits)) sits = raw.sits;
+      if (Array.isArray(raw.deletedIds)) deletedIds = raw.deletedIds;
+    }
+    return { sits, deletedIds };
   }
 
   getToken() {
@@ -128,35 +195,32 @@ class SyncManager {
   }
 
   loadLocal() {
+    const deleted = this.getDeletedIds();
     try {
       const raw = localStorage.getItem(this.storageKey);
-      if (!raw) {
-        const defaults = this.getDefaultData();
+      if (raw === null) {
+        // First boot initialization on a brand new browser
+        const defaults = this.getDefaultData().filter(s => !deleted.has(s.id));
         this.saveLocal(defaults);
         return defaults;
       }
       let parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Ensure Day 1 sits exist
-        const hasSoham = parsed.some(s => s.user === 'Soham' || (s.displayName && s.displayName.includes('Soham')));
-        const hasZabir = parsed.some(s => s.user === 'Zabir');
-        if (!hasSoham || !hasZabir) {
-          this.mergeAndSave(this.getDefaultData());
-          return this.loadLocal();
-        }
-        return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.filter(s => s && s.id && !deleted.has(s.id));
       }
-      return this.getDefaultData();
+      return [];
     } catch (e) {
       console.error('Error reading localStorage:', e);
-      return this.getDefaultData();
+      return [];
     }
   }
 
   saveLocal(data) {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(data));
-      this.notify(data);
+      const deleted = this.getDeletedIds();
+      const cleaned = (Array.isArray(data) ? data : []).filter(s => s && s.id && !deleted.has(s.id));
+      localStorage.setItem(this.storageKey, JSON.stringify(cleaned));
+      this.notify(cleaned);
     } catch (e) {
       console.error('Error writing to localStorage:', e);
     }
@@ -164,16 +228,21 @@ class SyncManager {
 
   mergeAndSave(incoming) {
     if (!Array.isArray(incoming) || incoming.length === 0) return false;
+    const deleted = this.getDeletedIds();
     const current = this.loadLocal();
     const map = new Map();
 
-    // Index existing
-    current.forEach(s => map.set(s.id, s));
+    // Index existing non-deleted sits
+    current.forEach(s => {
+      if (s && s.id && !deleted.has(s.id)) {
+        map.set(s.id, s);
+      }
+    });
 
-    // Merge incoming
+    // Merge incoming, strictly rejecting any tombstoned sit
     let hasNew = false;
     incoming.forEach(s => {
-      if (!s.id) s.id = 'sit_' + (s.timestamp || Date.now()) + '_' + Math.random().toString(36).substr(2, 4);
+      if (!s || !s.id || deleted.has(s.id)) return;
       if (!map.has(s.id)) {
         map.set(s.id, s);
         hasNew = true;
@@ -191,9 +260,19 @@ class SyncManager {
   }
 
   async addSit(sit) {
-    const data = this.loadLocal();
     if (!sit.id) sit.id = 'sit_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
     if (!sit.timestamp) sit.timestamp = Date.now();
+
+    // Remove from tombstones if it was previously marked
+    const deleted = this.getDeletedIds();
+    if (deleted.has(sit.id)) {
+      deleted.delete(sit.id);
+      try {
+        localStorage.setItem(this.tombstonesKey, JSON.stringify(Array.from(deleted)));
+      } catch (e) {}
+    }
+
+    const data = this.loadLocal();
     data.unshift(sit);
     this.saveLocal(data);
 
@@ -203,10 +282,25 @@ class SyncManager {
   }
 
   async deleteSit(id) {
+    if (!id) return { success: false, error: 'No ID specified' };
+
+    // 1. Permanently register tombstone in persistent storage
+    this.addDeletedId(id);
+
+    // 2. Filter local sits immediately
     let data = this.loadLocal();
     data = data.filter(s => s.id !== id);
     this.saveLocal(data);
-    await this.pushToCloud(data);
+
+    // 3. Broadcast to other open tabs on this device
+    if (this.channel) {
+      try {
+        this.channel.postMessage({ type: 'SITS_UPDATED', timestamp: Date.now() });
+      } catch (e) {}
+    }
+
+    // 4. Push removal + tombstones to GitHub cloud
+    return await this.pushToCloud(data);
   }
 
   /**
@@ -280,9 +374,9 @@ class SyncManager {
       this.isSyncing = true;
       this.updateSyncUI();
 
-      let remoteSits = null;
+      let remoteRaw = null;
 
-      // 1. Fetch live file from GitHub API
+      // 1. Fetch live file from GitHub API (0ms cache delay)
       if (token) {
         try {
           const resp = await fetch(apiUrl, {
@@ -295,7 +389,7 @@ class SyncManager {
             const data = await resp.json();
             this.lastSyncedSha = data.sha;
             const decoded = decodeURIComponent(escape(atob(data.content.replace(/\s/g, ''))));
-            remoteSits = JSON.parse(decoded);
+            remoteRaw = JSON.parse(decoded);
           }
         } catch (err) {
           console.warn('GitHub API pull warning:', err);
@@ -303,25 +397,48 @@ class SyncManager {
       }
 
       // 2. Fallback to repo static seed if API is unreachable
-      if (!remoteSits) {
+      if (!remoteRaw) {
         try {
           const rawResp = await fetch(`data/sits.json?cb=${Date.now()}`);
           if (rawResp.ok) {
-            remoteSits = await rawResp.json();
+            remoteRaw = await rawResp.json();
           }
         } catch (rawErr) {}
       }
 
-      if (Array.isArray(remoteSits) && remoteSits.length > 0) {
+      if (remoteRaw) {
+        const { sits: remoteSits, deletedIds: remoteDeletedIds } = this.parsePayload(remoteRaw);
+
+        // Absorb remote tombstones
+        if (remoteDeletedIds && remoteDeletedIds.length > 0) {
+          this.addDeletedIds(remoteDeletedIds);
+        }
+
+        // Prune any local sits that were deleted remotely
+        const deleted = this.getDeletedIds();
+        const currentLocal = this.loadLocal();
+        const prunedLocal = currentLocal.filter(s => s && s.id && !deleted.has(s.id));
+        const localWasPruned = prunedLocal.length < currentLocal.length;
+
+        if (localWasPruned) {
+          this.saveLocal(prunedLocal);
+        }
+
+        // Merge incoming valid remote sits
         const prevCount = this.loadLocal().length;
-        const hasNew = this.mergeAndSave(remoteSits);
+        const validRemote = remoteSits.filter(s => s && s.id && !deleted.has(s.id));
+        const hasNew = this.mergeAndSave(validRemote);
         const newCount = this.loadLocal().length;
 
         if (hasNew && newCount > prevCount && !silent) {
-          const latestSit = remoteSits[0];
-          const author = latestSit.displayName || latestSit.user;
-          const dur = latestSit.displayDuration || `${latestSit.durationMinutes}m`;
-          this.showSyncToast(`✨ Auto-synced new sit from ${author} (${dur})!`);
+          const latestSit = validRemote[0];
+          if (latestSit) {
+            const author = latestSit.displayName || latestSit.user;
+            const dur = latestSit.displayDuration || `${latestSit.durationMinutes}m`;
+            this.showSyncToast(`✨ Auto-synced new sit from ${author} (${dur})!`);
+          }
+        } else if (localWasPruned && !silent) {
+          this.showSyncToast('🗑️ Synced deletions across devices.');
         }
       }
 
@@ -334,7 +451,7 @@ class SyncManager {
   }
 
   /**
-   * Commits updated sits directly to GitHub REST API with conflict resolution
+   * Commits updated sits and tombstone deletions directly to GitHub REST API
    */
   async pushToCloud(dataToPush) {
     const token = this.getToken();
@@ -346,7 +463,7 @@ class SyncManager {
 
       const url = `https://api.github.com/repos/${this.repo}/contents/data/sits.json`;
 
-      // 1. Get latest file SHA & merge remote sits to prevent any conflict
+      // 1. Get latest file SHA & merge remote sits + tombstones to prevent conflict
       let sha = this.lastSyncedSha;
       try {
         const getRes = await fetch(url, {
@@ -360,20 +477,39 @@ class SyncManager {
           sha = fileInfo.sha;
           this.lastSyncedSha = sha;
           const decoded = decodeURIComponent(escape(atob(fileInfo.content.replace(/\s/g, ''))));
-          const remoteSits = JSON.parse(decoded);
-          if (Array.isArray(remoteSits)) {
-            this.mergeAndSave(remoteSits);
+          const remoteRaw = JSON.parse(decoded);
+          const { sits: remoteSits, deletedIds: remoteDeletedIds } = this.parsePayload(remoteRaw);
+
+          // Absorb remote tombstones
+          if (remoteDeletedIds && remoteDeletedIds.length > 0) {
+            this.addDeletedIds(remoteDeletedIds);
+          }
+
+          // Merge any remote sits that are not tombstoned
+          if (Array.isArray(remoteSits) && remoteSits.length > 0) {
+            const deleted = this.getDeletedIds();
+            const validRemote = remoteSits.filter(s => s && s.id && !deleted.has(s.id));
+            this.mergeAndSave(validRemote);
           }
         }
       } catch (e) {}
 
-      // 2. Prepare payload with latest merged state
-      const mergedLocal = this.loadLocal();
-      const contentStr = JSON.stringify(mergedLocal, null, 2);
+      // 2. Prepare payload with latest merged state & tombstones
+      const deleted = this.getDeletedIds();
+      const finalSits = this.loadLocal().filter(s => s && s.id && !deleted.has(s.id));
+      this.saveLocal(finalSits);
+
+      const payload = {
+        sits: finalSits,
+        deletedIds: Array.from(deleted),
+        lastUpdated: Date.now()
+      };
+
+      const contentStr = JSON.stringify(payload, null, 2);
       const contentBase64 = btoa(unescape(encodeURIComponent(contentStr)));
 
       const body = {
-        message: `Auto-sync meditation sit [${new Date().toISOString()}]`,
+        message: `Auto-sync meditation sits & tombstones [${new Date().toISOString()}]`,
         content: contentBase64,
         branch: 'main'
       };
@@ -415,6 +551,16 @@ class SyncManager {
     }
   }
 
+  /* ---------------- ALIASES & COMPATIBILITY ---------------- */
+
+  pullSync(silent = true) {
+    return this.pullFromCloud(silent);
+  }
+
+  syncToGitHub() {
+    return this.pushToCloud(this.loadLocal());
+  }
+
   showSyncToast(msg) {
     const toast = document.createElement('div');
     toast.className = 'sync-toast';
@@ -447,8 +593,12 @@ class SyncManager {
   }
 
   exportJSON() {
-    const data = this.loadLocal();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const payload = {
+      sits: this.loadLocal(),
+      deletedIds: Array.from(this.getDeletedIds()),
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -460,12 +610,16 @@ class SyncManager {
   importJSON(jsonString) {
     try {
       const parsed = JSON.parse(jsonString);
-      if (Array.isArray(parsed)) {
-        this.mergeAndSave(parsed);
-        this.pushToCloud(this.loadLocal());
-        return { success: true, count: parsed.length };
+      const { sits, deletedIds } = this.parsePayload(parsed);
+      if (deletedIds.length > 0) {
+        this.addDeletedIds(deletedIds);
       }
-      return { success: false, error: 'JSON is not an array of meditation sits' };
+      if (sits.length > 0) {
+        this.mergeAndSave(sits);
+        this.pushToCloud(this.loadLocal());
+        return { success: true, count: sits.length };
+      }
+      return { success: false, error: 'No valid sits found in JSON' };
     } catch (e) {
       return { success: false, error: e.message };
     }
