@@ -1,5 +1,19 @@
 [
   {
+    "user": "Soham",
+    "displayName": "Soham Sadhu",
+    "date": "2026-10-16",
+    "durationMinutes": 300,
+    "displayDuration": "300 mins",
+    "targetMinutes": 15,
+    "status": "completed",
+    "movedAtMinutes": null,
+    "movementReason": null,
+    "reflection": "Maintained unbroken stillness in meditation.",
+    "timestamp": 1792149832476,
+    "id": "sit_1792149832476_16h8c9"
+  },
+  {
     "user": "Zabir",
     "displayName": "Zabir",
     "date": "2026-10-16",
