@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Adhiṭṭhāna — Stillness Journal & Analytics | Zabir &amp; Soham Sadhu</title>
+  <title>ADHIṬṬHĀNA — The Crucible of Stillness | Zabir &amp; Soham Sadhu</title>
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -18,93 +18,163 @@
 </head>
 <body data-theme="aware_ocean">
 
-  <!-- BACKGROUND VISUAL LAYERS -->
-  <video id="ambientBackgroundVideo" autoplay loop muted playsinline poster="assets/bg_ocean_night.jpg">
-    <source src="assets/aware_clean_loop.webm" type="video/webm">
-    <source src="assets/aware_clean_loop.mp4" type="video/mp4">
-  </video>
+  <!-- TOP SCROLL PROGRESS BAR -->
+  <div id="scroll-progress" class="scroll-progress-bar"></div>
 
-  <div id="ambientBackgroundImage" class="ambient-bg-image"></div>
-  <canvas id="zen-canvas"></canvas>
-  <div class="ambient-vignette-overlay"></div>
+  <!-- CUSTOM MAGNETIC CURSOR (DESKTOP) -->
+  <div id="custom-cursor" class="custom-cursor"></div>
+  <div id="cursor-follower" class="cursor-follower"></div>
 
-  <div class="app-container">
+  <!-- BACKGROUND VISUAL LAYERS (PARALLAX DEPTH) -->
+  <div class="parallax-bg-wrapper">
+    <video id="ambientBackgroundVideo" autoplay loop muted playsinline poster="assets/bg_ocean_night.jpg">
+      <source src="assets/aware_clean_loop.webm" type="video/webm">
+      <source src="assets/aware_clean_loop.mp4" type="video/mp4">
+    </video>
+    <div id="ambientBackgroundImage" class="ambient-bg-image"></div>
+    <canvas id="zen-canvas"></canvas>
+    <div class="ambient-vignette-overlay"></div>
+    <div class="ambient-mesh-glow"></div>
+  </div>
 
-    <!-- TOP NAVIGATION & CONTROLS -->
-    <header class="app-header">
-      <div class="brand-section">
-        <div class="brand-symbol">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+  <!-- STICKY MINIMAL NAVIGATION DOCK -->
+  <header class="app-header-dock">
+    <div class="dock-container">
+      <a href="#hero" class="dock-brand">
+        <div class="dock-brand-symbol">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
             <circle cx="12" cy="12" r="10"/>
             <path d="M12 6v6l4 2"/>
           </svg>
         </div>
-        <div>
-          <div class="brand-title">ADHIṬṬHĀNA</div>
-          <div class="brand-subtitle">Stillness Journal &bull; Zabir &amp; Soham Sadhu</div>
+        <div class="dock-brand-text">
+          <span class="dock-brand-title">ADHIṬṬHĀNA</span>
+          <span class="dock-brand-sub">ZABIR &amp; SOHAM</span>
         </div>
-      </div>
+      </a>
 
-      <!-- Meditator Switcher & Header Actions -->
-      <div class="header-right-group">
-        <div class="user-toggle-group">
-          <button class="user-toggle-btn btn-zabir active-user" data-set-user="Zabir">
-            <span class="user-dot"></span> Zabir
+      <!-- Quick Section Anchor Links -->
+      <nav class="dock-nav desktop-only">
+        <a href="#hero" class="dock-link active" data-nav="hero">Overview</a>
+        <a href="#logger" class="dock-link" data-nav="logger">Log Sit</a>
+        <a href="#telemetry" class="dock-link" data-nav="telemetry">Telemetry</a>
+        <a href="#analytics" class="dock-link" data-nav="analytics">Analytics</a>
+        <a href="#journal" class="dock-link" data-nav="journal">Journal</a>
+      </nav>
+
+      <!-- Right Action Group -->
+      <div class="dock-actions">
+        <div class="dock-user-toggle">
+          <button class="dock-user-btn btn-zabir active-user" data-set-user="Zabir">
+            <span class="u-dot cyan"></span> Zabir
           </button>
-          <button class="user-toggle-btn btn-soham" data-set-user="Soham">
-            <span class="user-dot"></span> Soham Sadhu
+          <button class="dock-user-btn btn-soham" data-set-user="Soham">
+            <span class="u-dot purple"></span> Soham
           </button>
         </div>
 
-        <button id="btn-toggle-bg" class="btn-icon-text" title="Switch Background Image">
-          <span class="btn-icon">🖼️</span> <span class="desktop-only">Background</span>
+        <button id="btn-toggle-bg" class="dock-btn-icon" title="Switch Background Image">
+          <span>🖼️</span>
         </button>
 
-        <button id="btn-open-sync" class="btn-icon-text" title="Cloud Sync & Backup">
-          <span id="sync-indicator" class="sync-pill"><span class="dot green"></span> Sync</span>
+        <button id="btn-open-sync" class="dock-btn-icon" title="Cloud Sync & Backup">
+          <span id="sync-indicator" class="sync-status-dot"></span>
+          <span class="desktop-only">Sync</span>
         </button>
       </div>
-    </header>
+    </div>
+  </header>
 
-    <!-- SECTION 1: THE PAST ENTRY LOGGER FOR ZABIR & SOHAM -->
-    <section class="section-container logger-section">
-      <div class="logger-card">
-        <div class="logger-header">
-          <div class="logger-title-wrap">
-            <span class="logger-icon">✍️</span>
-            <div>
-              <h2 class="logger-title">Log Past Meditation Sit</h2>
-              <p class="logger-desc">Record offline or completed sessions for Zabir and Soham Sadhu</p>
-            </div>
+  <main class="content-wrapper">
+
+    <!-- ===================================================================
+         HERO SECTION: SCROLL-BASED MASTHEAD WITH PARALLAX DEPTH
+         =================================================================== -->
+    <section id="hero" class="hero-section">
+      <div class="hero-content">
+        <div class="hero-meta-badge reveal-on-scroll">
+          <span class="pulse-beacon"></span>
+          <span>THE CRUCIBLE OF STILLNESS &bull; ADHIṬṬHĀNA</span>
+        </div>
+
+        <h1 class="hero-title reveal-on-scroll">
+          UNBROKEN<br>
+          <span class="text-gradient-cyan">STILLNESS</span>
+        </h1>
+
+        <p class="hero-subtitle reveal-on-scroll">
+          A high-determination meditation journal &amp; head-to-head telemetry suite for Zabir &amp; Soham Sadhu. Measuring absolute stillness with zero retreat.
+        </p>
+
+        <!-- Baseline Milestone Banner -->
+        <div class="hero-telemetry-banner reveal-on-scroll">
+          <div class="telemetry-pill">
+            <span class="t-label">DAY 1 BASELINE</span>
+            <span class="t-value">Soham: 15m &bull; Zabir: 11m 8s</span>
           </div>
-          <div class="logger-badge">Path to Enlightenment</div>
+          <div class="telemetry-pill">
+            <span class="t-label">CURRENT OBJECTIVE</span>
+            <span class="t-value">15 Mins Unbroken Daily</span>
+          </div>
         </div>
 
+        <!-- Scroll Indicator -->
+        <div class="hero-scroll-prompt">
+          <a href="#logger" class="scroll-cue-link">
+            <div class="mouse-icon">
+              <div class="mouse-wheel"></div>
+            </div>
+            <span class="scroll-cue-text">SCROLL TO LOG &bull; EXPLORE</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================
+         SECTION 1: THE STILLNESS COMMAND CENTER (PAST ENTRY LOGGER)
+         =================================================================== -->
+    <section id="logger" class="page-section section-logger">
+      <div class="section-header-block reveal-on-scroll">
+        <span class="section-tag-pill">COMMAND CENTER</span>
+        <h2 class="section-title">Log Past Meditation Sit</h2>
+        <p class="section-desc">Record completed offline sessions for Zabir and Soham Sadhu.</p>
+      </div>
+
+      <div class="logger-glass-card reveal-on-scroll">
         <form id="form-past-entry" class="past-entry-form">
-          <!-- 1. Meditator Selection -->
+          
+          <!-- Meditator Segment Buttons -->
           <div class="form-row">
-            <label class="form-label">Meditator</label>
+            <label class="form-field-label">Select Meditator</label>
             <div class="segment-user-select">
               <button type="button" class="user-select-btn active-zabir" id="btn-select-zabir" data-user="Zabir">
-                <span class="avatar-mini cyan">Z</span> Zabir
+                <span class="avatar-disc cyan">Z</span>
+                <div class="user-btn-text">
+                  <strong>Zabir</strong>
+                  <small>Luminous Cyan</small>
+                </div>
               </button>
               <button type="button" class="user-select-btn" id="btn-select-soham" data-user="Soham">
-                <span class="avatar-mini purple">S</span> Soham Sadhu
+                <span class="avatar-disc purple">S</span>
+                <div class="user-btn-text">
+                  <strong>Soham Sadhu</strong>
+                  <small>Sacred Violet</small>
+                </div>
               </button>
             </div>
             <input type="hidden" id="entry-user" value="Zabir">
           </div>
 
-          <!-- 2. Date and Duration Grid -->
+          <!-- Date & Duration Inputs -->
           <div class="form-grid-2">
             <div class="form-group">
-              <label for="entry-date" class="form-label">Date of Sit</label>
+              <label for="entry-date" class="form-field-label">Date of Sit</label>
               <input type="date" id="entry-date" class="form-input" required>
             </div>
 
             <div class="form-group">
-              <label class="form-label">Duration</label>
-              <div class="duration-inputs">
+              <label class="form-field-label">Actual Duration</label>
+              <div class="duration-inputs-wrap">
                 <div class="input-with-addon">
                   <input type="number" id="entry-minutes" class="form-input" min="0" max="300" placeholder="15" required>
                   <span class="input-addon">min</span>
@@ -117,27 +187,27 @@
             </div>
           </div>
 
-          <!-- Quick Duration Presets -->
+          <!-- Quick 1-Click Duration Presets -->
           <div class="presets-row">
             <span class="presets-label">Quick Fill:</span>
             <div class="preset-buttons">
               <button type="button" class="pill-preset" data-min="11" data-sec="8">11m 8s (Day 1)</button>
-              <button type="button" class="pill-preset" data-min="15" data-sec="0">15 min (Initiate)</button>
+              <button type="button" class="pill-preset active" data-min="15" data-sec="0">15 min (Target)</button>
               <button type="button" class="pill-preset" data-min="30" data-sec="0">30 min</button>
               <button type="button" class="pill-preset" data-min="45" data-sec="0">45 min</button>
-              <button type="button" class="pill-preset" data-min="60" data-sec="0">60 min (SDS Standard)</button>
+              <button type="button" class="pill-preset" data-min="60" data-sec="0">60 min (SDS Master)</button>
             </div>
           </div>
 
-          <!-- 3. Target and Outcome Grid -->
-          <div class="form-grid-2" style="margin-top: 1rem;">
+          <!-- Target Goal & Outcome Selection -->
+          <div class="form-grid-2" style="margin-top: 1.25rem;">
             <div class="form-group">
-              <label for="entry-target" class="form-label">Target Goal (Minutes)</label>
+              <label for="entry-target" class="form-field-label">Target Goal (Minutes)</label>
               <input type="number" id="entry-target" class="form-input" min="5" max="180" value="15">
             </div>
 
             <div class="form-group">
-              <label class="form-label">Stillness Outcome</label>
+              <label class="form-field-label">Stillness Outcome</label>
               <div class="outcome-toggle-group">
                 <label class="outcome-radio-label active" id="label-outcome-completed">
                   <input type="radio" name="entry-outcome" value="completed" checked>
@@ -151,202 +221,225 @@
             </div>
           </div>
 
-          <!-- 4. Movement Reason (Conditional) -->
+          <!-- Conditional Movement Reason -->
           <div id="row-movement-reason" class="form-group conditional-row hidden">
-            <label for="entry-reason-select" class="form-label">Movement Trigger (What prompted moving?)</label>
+            <label for="entry-reason-select" class="form-field-label">Movement Trigger (What prompted moving?)</label>
             <select id="entry-reason-select" class="form-select">
               <option value="Intense burning pain in knees / hips">Intense burning pain in knees / hips</option>
               <option value="Violent itch or sensory tickle">Violent itch or sensory tickle</option>
               <option value="Mental storm / restlessness panic">Mental storm / restlessness panic</option>
               <option value="Foot numbness &amp; pins/needles">Foot numbness &amp; pins/needles</option>
               <option value="Physical safety / joint relief">Physical safety / joint relief</option>
-              <option value="Other">Other (custom note)</option>
+              <option value="Other">Other</option>
             </select>
           </div>
 
-          <!-- 5. Reflection Notes -->
-          <div class="form-group" style="margin-top: 1rem;">
-            <label for="entry-reflection" class="form-label">Reflection &bull; Physical / Mental Sensation</label>
+          <!-- Reflection Notes -->
+          <div class="form-group" style="margin-top: 1.25rem;">
+            <label for="entry-reflection" class="form-field-label">Reflection &bull; Physical / Mental Sensation</label>
             <textarea id="entry-reflection" class="form-textarea" rows="2" placeholder="Describe sensations, equanimity, mind chatter, or how pain was observed..."></textarea>
           </div>
 
           <!-- Submit Button -->
-          <button type="submit" id="btn-save-entry" class="btn-primary-submit">
+          <button type="submit" id="btn-save-entry" class="btn-magnetic-submit">
             <span>✍️ Record Meditation Sit &bull; Sync Data</span>
           </button>
         </form>
       </div>
     </section>
 
-    <!-- SECTION 2: DETERMINATION GOALS & DATA CARDS -->
-    <section class="section-container data-section">
-      <!-- Goals Banner -->
-      <div class="goals-card-banner">
-        <div class="goals-header-row">
-          <div class="goals-title">
-            <span>🎯</span>
+    <!-- ===================================================================
+         SECTION 2: HEAD-TO-HEAD TELEMETRY & DAILY GOALS (LANDO NORRIS / F1 STYLE)
+         =================================================================== -->
+    <section id="telemetry" class="page-section section-telemetry">
+      <div class="section-header-block reveal-on-scroll">
+        <span class="section-tag-pill">LIVE TELEMETRY</span>
+        <h2 class="section-title">Head-to-Head Telemetry</h2>
+        <p class="section-desc">Split-second determination metrics comparing Zabir and Soham Sadhu.</p>
+      </div>
+
+      <!-- Daily Goals Progress Bar -->
+      <div class="goals-telemetry-banner reveal-on-scroll">
+        <div class="goals-banner-top">
+          <div class="banner-title-group">
+            <span class="target-icon">🎯</span>
             <div>
-              <strong>Daily Determination Goals (Target: 15 Mins)</strong>
-              <span class="goals-sub">Zabir &amp; Soham Sadhu &bull; Path to Enlightenment</span>
+              <strong>Daily Target: 15 Mins Unbroken</strong>
+              <small>Progress towards today's vow</small>
             </div>
           </div>
           <button id="btn-edit-goals-banner" class="btn-ghost-edit">Edit Targets</button>
         </div>
-        <div class="goals-progress-grid">
-          <div class="goal-user-col">
-            <div class="goal-user-header">
-              <span class="avatar-mini cyan">Z</span>
-              <span class="goal-user-name">Zabir</span>
-              <span id="goal-zabir-status" class="goal-tag warning">11m 8s / 15m (74%)</span>
+
+        <div class="goals-bars-grid">
+          <!-- Zabir Goal -->
+          <div class="goal-track-item">
+            <div class="goal-track-header">
+              <span class="track-user cyan">Zabir</span>
+              <span id="goal-zabir-status" class="track-status warning">11m 8s / 15m (74%)</span>
             </div>
-            <div class="goal-progress-bar-wrap">
-              <div id="goal-zabir-bar" class="goal-progress-bar cyan-bar" style="width: 74%;"></div>
+            <div class="progress-track-bg">
+              <div id="goal-zabir-bar" class="progress-track-fill cyan-fill" style="width: 74%;"></div>
             </div>
           </div>
-          <div class="goal-user-col">
-            <div class="goal-user-header">
-              <span class="avatar-mini purple">S</span>
-              <span class="goal-user-name">Soham Sadhu</span>
-              <span id="goal-soham-status" class="goal-tag success">15m / 15m (100% Met! 🔥)</span>
+
+          <!-- Soham Goal -->
+          <div class="goal-track-item">
+            <div class="goal-track-header">
+              <span class="track-user purple">Soham Sadhu</span>
+              <span id="goal-soham-status" class="track-status success">15m / 15m (100% Met! 🔥)</span>
             </div>
-            <div class="goal-progress-bar-wrap">
-              <div id="goal-soham-bar" class="goal-progress-bar purple-bar" style="width: 100%;"></div>
+            <div class="progress-track-bg">
+              <div id="goal-soham-bar" class="progress-track-fill purple-fill" style="width: 100%;"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Head-to-Head Cards (Zabir vs Soham Sadhu) -->
-      <div class="dual-profile-grid">
-        <!-- Zabir Card -->
-        <div class="user-summary-card card-zabir">
-          <div class="card-top">
-            <div class="card-user-info">
-              <div class="avatar-disc cyan">Z</div>
+      <!-- Telemetry Cards Grid -->
+      <div class="telemetry-grid">
+        
+        <!-- Zabir Telemetry Card -->
+        <div class="telemetry-card card-zabir reveal-on-scroll">
+          <div class="telemetry-card-top">
+            <div class="telemetry-user-badge">
+              <span class="avatar-disc cyan">Z</span>
               <div>
-                <div class="card-name">Zabir</div>
-                <div class="card-vow-badge">Vow of Stillness Active</div>
+                <h3 class="user-title">Zabir</h3>
+                <span class="user-sub">VOW OF STILLNESS</span>
               </div>
             </div>
-            <span class="user-pill cyan">Zabir</span>
+            <span class="telemetry-pill-tag cyan">ACTIVE DRIVER</span>
           </div>
-          <div class="card-metrics-row">
-            <div class="c-metric">
-              <span class="c-label">Total Time</span>
-              <span id="z-total-mins" class="c-val">11m 8s</span>
+
+          <div class="telemetry-stats-row">
+            <div class="telemetry-stat">
+              <span class="stat-label">TOTAL TIME</span>
+              <span id="z-total-mins" class="stat-number">11m 8s</span>
             </div>
-            <div class="c-metric">
-              <span class="c-label">Best Clean Sit</span>
-              <span id="z-longest-sit" class="c-val">11m 8s</span>
+            <div class="telemetry-stat">
+              <span class="stat-label">LONGEST SIT</span>
+              <span id="z-longest-sit" class="stat-number">11m 8s</span>
             </div>
-            <div class="c-metric">
-              <span class="c-label">Sits / Timeouts</span>
-              <span id="z-clean-sits" class="c-val">0 / 1</span>
+            <div class="telemetry-stat">
+              <span class="stat-label">CLEAN / TIMEOUT</span>
+              <span id="z-clean-sits" class="stat-number">0 / 1</span>
             </div>
           </div>
-          <div class="card-footer-pill">
-            <span id="z-completion-rate">Day 1: 11m 8s (Time Out)</span>
-            <span>Cyan Stream</span>
+
+          <div class="telemetry-card-bottom">
+            <div class="baseline-stamp">
+              <span class="stamp-dot cyan"></span>
+              <span id="z-completion-rate">Day 1: 11m 8s (Time Out)</span>
+            </div>
+            <span class="telemetry-badge-detail">LUMINOUS CYAN</span>
           </div>
         </div>
 
-        <!-- Soham Card -->
-        <div class="user-summary-card card-soham">
-          <div class="card-top">
-            <div class="card-user-info">
-              <div class="avatar-disc purple">S</div>
+        <!-- Soham Telemetry Card -->
+        <div class="telemetry-card card-soham reveal-on-scroll">
+          <div class="telemetry-card-top">
+            <div class="telemetry-user-badge">
+              <span class="avatar-disc purple">S</span>
               <div>
-                <div class="card-name">Soham Sadhu</div>
-                <div class="card-vow-badge">Vow of Stillness Active</div>
+                <h3 class="user-title">Soham Sadhu</h3>
+                <span class="user-sub">VOW OF STILLNESS</span>
               </div>
             </div>
-            <span class="user-pill purple">Soham Sadhu</span>
+            <span class="telemetry-pill-tag purple">ACTIVE DRIVER</span>
           </div>
-          <div class="card-metrics-row">
-            <div class="c-metric">
-              <span class="c-label">Total Time</span>
-              <span id="s-total-mins" class="c-val">15m</span>
+
+          <div class="telemetry-stats-row">
+            <div class="telemetry-stat">
+              <span class="stat-label">TOTAL TIME</span>
+              <span id="s-total-mins" class="stat-number">15m</span>
             </div>
-            <div class="c-metric">
-              <span class="c-label">Best Clean Sit</span>
-              <span id="s-longest-sit" class="c-val">15m</span>
+            <div class="telemetry-stat">
+              <span class="stat-label">LONGEST SIT</span>
+              <span id="s-longest-sit" class="stat-number">15m</span>
             </div>
-            <div class="c-metric">
-              <span class="c-label">Sits / Timeouts</span>
-              <span id="s-clean-sits" class="c-val">1 / 0</span>
+            <div class="telemetry-stat">
+              <span class="stat-label">CLEAN / TIMEOUT</span>
+              <span id="s-clean-sits" class="stat-number">1 / 0</span>
             </div>
           </div>
-          <div class="card-footer-pill">
-            <span id="s-completion-rate">Day 1: 15 mins (Complete)</span>
-            <span>Violet Stream</span>
+
+          <div class="telemetry-card-bottom">
+            <div class="baseline-stamp">
+              <span class="stamp-dot purple"></span>
+              <span id="s-completion-rate">Day 1: 15 mins (Complete)</span>
+            </div>
+            <span class="telemetry-badge-detail">SACRED VIOLET</span>
           </div>
         </div>
+
       </div>
     </section>
 
-    <!-- SECTION 3: INTERACTIVE GRAPHS & VISUAL ANALYTICS -->
-    <section class="section-container graphs-section">
-      <div class="section-title-row">
-        <div>
-          <h2 class="section-heading">Stillness Analytics &bull; Zabir &amp; Soham</h2>
-          <p class="section-sub">Progress metrics and comparative determination over time</p>
-        </div>
+    <!-- ===================================================================
+         SECTION 3: VISUAL ANALYTICS & INTERACTIVE GRAPHS
+         =================================================================== -->
+    <section id="analytics" class="page-section section-analytics">
+      <div class="section-header-block reveal-on-scroll">
+        <span class="section-tag-pill">PERFORMANCE DYNAMICS</span>
+        <h2 class="section-title">Stillness Analytics</h2>
+        <p class="section-desc">Interactive progression charts and consistency heatmap.</p>
       </div>
 
       <!-- Main Progression Line Chart -->
-      <div class="chart-section-card">
-        <div class="chart-card-header">
+      <div class="chart-glass-panel reveal-on-scroll">
+        <div class="chart-panel-header">
           <div>
-            <h3>Daily Stillness Progression</h3>
-            <p>Minutes meditated daily in unbroken determination.</p>
+            <h3 class="chart-title">Daily Stillness Progression</h3>
+            <span class="chart-sub">Minutes meditated daily in unbroken determination</span>
           </div>
-          <div class="chart-controls">
-            <button class="chart-timeframe-btn" data-days="7">7 Days</button>
-            <button class="chart-timeframe-btn active" data-days="14">14 Days</button>
-            <button class="chart-timeframe-btn" data-days="30">30 Days</button>
-            <button class="chart-timeframe-btn" data-days="all">All</button>
+          <div class="chart-timeframe-controls">
+            <button class="timeframe-btn" data-days="7">7D</button>
+            <button class="timeframe-btn active" data-days="14">14D</button>
+            <button class="timeframe-btn" data-days="30">30D</button>
+            <button class="timeframe-btn" data-days="all">ALL</button>
           </div>
         </div>
-        <div class="chart-canvas-wrapper" style="height: 280px;">
+        <div class="chart-wrapper-canvas" style="height: 300px;">
           <canvas id="history-chart"></canvas>
         </div>
       </div>
 
-      <!-- 2-Column Grid for Bar & Ratio Charts -->
-      <div class="charts-subgrid">
-        <!-- Head-to-Head Bar Chart -->
-        <div class="chart-section-card">
-          <div class="chart-card-header">
+      <!-- 2-Column Split for Comparison & Ratio -->
+      <div class="charts-duo-grid">
+        <!-- Head-to-Head Comparison Bar Chart -->
+        <div class="chart-glass-panel reveal-on-scroll">
+          <div class="chart-panel-header">
             <div>
-              <h3>Head-to-Head Comparison</h3>
-              <p>Average sit, longest sit, and total hours.</p>
+              <h3 class="chart-title">Head-to-Head Comparison</h3>
+              <span class="chart-sub">Avg sit, best sit, total hours</span>
             </div>
           </div>
-          <div class="chart-canvas-wrapper" style="height: 240px;">
+          <div class="chart-wrapper-canvas" style="height: 240px;">
             <canvas id="comparison-chart"></canvas>
           </div>
         </div>
 
         <!-- Stillness vs Movement Ratio Doughnut -->
-        <div class="chart-section-card">
-          <div class="chart-card-header">
+        <div class="chart-glass-panel reveal-on-scroll">
+          <div class="chart-panel-header">
             <div>
-              <h3>Stillness Ratio</h3>
-              <p>Unbroken sits vs movement time-outs.</p>
+              <h3 class="chart-title">Stillness Ratio</h3>
+              <span class="chart-sub">Clean sits vs time-outs</span>
             </div>
           </div>
-          <div class="chart-canvas-wrapper" style="height: 240px;">
+          <div class="chart-wrapper-canvas" style="height: 240px;">
             <canvas id="ratio-chart"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Activity Heatmap Grid -->
-      <div class="chart-section-card" style="margin-top: 1.5rem;">
-        <div class="chart-card-header">
+      <!-- 28-Day Consistency Heatmap -->
+      <div class="chart-glass-panel heatmap-panel reveal-on-scroll" style="margin-top: 1.5rem;">
+        <div class="chart-panel-header">
           <div>
-            <h3>28-Day Consistency Heatmap</h3>
-            <p>Daily meditation activity squares.</p>
+            <h3 class="chart-title">28-Day Consistency Matrix</h3>
+            <span class="chart-sub">Daily stillness frequency squares</span>
           </div>
           <div class="heatmap-legend">
             <span class="legend-box level-0"></span> None
@@ -359,38 +452,52 @@
       </div>
     </section>
 
-    <!-- SECTION 4: PAST ENTRIES DATA JOURNAL (SIT FEED) -->
-    <section class="section-container feed-section">
-      <div class="recent-sits-card">
-        <div class="feed-header">
-          <div>
-            <h3>Past Entries Journal</h3>
-            <p style="font-size:0.8rem; color:var(--text-dim); margin-top:0.2rem;">All recorded sits for Zabir and Soham Sadhu</p>
+    <!-- ===================================================================
+         SECTION 4: THE UNBROKEN CHRONICLE (PAST ENTRIES FEED)
+         =================================================================== -->
+    <section id="journal" class="page-section section-journal">
+      <div class="section-header-block reveal-on-scroll">
+        <span class="section-tag-pill">HISTORICAL LOG</span>
+        <h2 class="section-title">The Unbroken Chronicle</h2>
+        <p class="section-desc">Every sit recorded by Zabir and Soham Sadhu, verified and preserved.</p>
+      </div>
+
+      <div class="journal-feed-panel reveal-on-scroll">
+        <div class="journal-feed-header">
+          <div class="journal-feed-title">
+            <span>📜</span>
+            <div>
+              <strong>Verified Sits Feed</strong>
+              <small>Synchronized across devices</small>
+            </div>
           </div>
-          <div class="feed-filter-tabs">
-            <button class="feed-tab active" data-filter="all">All (<span id="count-all">0</span>)</button>
-            <button class="feed-tab" data-filter="Zabir">Zabir (<span id="count-zabir">0</span>)</button>
-            <button class="feed-tab" data-filter="Soham">Soham (<span id="count-soham">0</span>)</button>
+          <div class="journal-filter-pills">
+            <button class="filter-pill active" data-filter="all">All (<span id="count-all">0</span>)</button>
+            <button class="filter-pill" data-filter="Zabir">Zabir (<span id="count-zabir">0</span>)</button>
+            <button class="filter-pill" data-filter="Soham">Soham (<span id="count-soham">0</span>)</button>
           </div>
         </div>
 
-        <div id="sit-feed-container" class="feed-list">
-          <!-- Dynamically populated sits -->
+        <div id="sit-feed-container" class="feed-cards-list">
+          <!-- Populated dynamically via JS -->
         </div>
       </div>
     </section>
 
     <!-- FOOTER -->
     <footer class="app-footer">
-      <div>Adhiṭṭhāna &bull; Path to Enlightenment &bull; Zabir &amp; Soham Sadhu</div>
-      <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.3rem;">
-        Dedicated to unbroken stillness, relentless determination, and radical self-honesty.
+      <div class="footer-inner">
+        <div class="footer-brand">ADHIṬṬHĀNA &bull; THE CRUCIBLE OF STILLNESS</div>
+        <div class="footer-names">Zabir &bull; Soham Sadhu</div>
+        <div class="footer-quote">&ldquo;When non-movement is absolute, resistance dies.&rdquo;</div>
       </div>
     </footer>
 
-  </div>
+  </main>
 
-  <!-- MODALS -->
+  <!-- ===================================================================
+       MODALS
+       =================================================================== -->
 
   <!-- Modal 1: Sync Modal -->
   <div id="modal-sync" class="modal-overlay">
@@ -405,10 +512,10 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">GitHub Token (Direct Cloud Committer)</label>
+        <label class="form-field-label">GitHub Token (Direct Cloud Committer)</label>
         <div style="display: flex; gap: 0.6rem;">
           <input type="password" id="input-gh-token" class="form-input" placeholder="ghp_... (stored securely in browser only)">
-          <button id="btn-save-gh-token" class="btn-icon-text" style="background: var(--biolum-aqua); color: #000; font-weight:700;">Save</button>
+          <button id="btn-save-gh-token" class="btn-modal-action">Save</button>
         </div>
         <small style="color: var(--text-dim); display:block; margin-top:0.4rem;">
           Commits sits directly to <code style="color:var(--biolum-aqua);">data/sits.json</code> so all devices stay synchronized.
@@ -416,12 +523,12 @@
       </div>
 
       <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
-        <label class="form-label">Manual Backup &amp; Restore</label>
+        <label class="form-field-label">Manual Backup &amp; Restore</label>
         <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
-          <button id="btn-export-json" class="btn-icon-text" style="flex: 1; justify-content: center;">
+          <button id="btn-export-json" class="btn-modal-secondary" style="flex: 1;">
             📥 Export JSON
           </button>
-          <label class="btn-icon-text" style="flex: 1; justify-content: center; cursor: pointer;">
+          <label class="btn-modal-secondary" style="flex: 1; text-align: center; cursor: pointer;">
             📤 Import JSON
             <input type="file" id="input-import-json" accept=".json" style="display: none;">
           </label>
@@ -446,11 +553,11 @@
         <h4 style="color:var(--cyan-primary); margin-bottom: 0.6rem; font-size: 0.95rem;">Zabir's Targets</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem;">
           <div class="form-group">
-            <label class="form-label">Daily Target (mins)</label>
+            <label class="form-field-label">Daily Target (mins)</label>
             <input type="number" id="goal-zabir-daily" class="form-input" min="5" max="180" value="15">
           </div>
           <div class="form-group">
-            <label class="form-label">Weekly Sits Target</label>
+            <label class="form-field-label">Weekly Sits Target</label>
             <input type="number" id="goal-zabir-weekly" class="form-input" min="1" max="21" value="7">
           </div>
         </div>
@@ -458,16 +565,16 @@
         <h4 style="color:var(--purple-primary); margin-bottom: 0.6rem; font-size: 0.95rem;">Soham Sadhu's Targets</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1.2rem;">
           <div class="form-group">
-            <label class="form-label">Daily Target (mins)</label>
+            <label class="form-field-label">Daily Target (mins)</label>
             <input type="number" id="goal-soham-daily" class="form-input" min="5" max="180" value="15">
           </div>
           <div class="form-group">
-            <label class="form-label">Weekly Sits Target</label>
+            <label class="form-field-label">Weekly Sits Target</label>
             <input type="number" id="goal-soham-weekly" class="form-input" min="1" max="21" value="7">
           </div>
         </div>
 
-        <button type="submit" class="btn-primary-submit">
+        <button type="submit" class="btn-magnetic-submit">
           Save Targets
         </button>
       </form>
