@@ -1,6 +1,20 @@
 {
   "sits": [
     {
+      "user": "Zabir",
+      "displayName": "Zabir",
+      "date": "2026-10-16",
+      "durationMinutes": 15,
+      "displayDuration": "15 mins",
+      "targetMinutes": 15,
+      "status": "completed",
+      "movedAtMinutes": null,
+      "movementReason": null,
+      "reflection": "Maintained unbroken stillness in meditation.",
+      "timestamp": 1792151219877,
+      "id": "sit_1792151219877_7hkdsi"
+    },
+    {
       "id": "sit_zabir_20261015",
       "user": "Zabir",
       "displayName": "Zabir",
@@ -33,5 +47,5 @@
     "sit_1792149832476_16h8c9",
     "sit_1792149778785_3m3tk7"
   ],
-  "lastUpdated": 1792151156640
+  "lastUpdated": 1792151220118
 }
