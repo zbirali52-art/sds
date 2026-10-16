@@ -113,12 +113,16 @@ class AdhitthanaApp {
     const navLinks = document.querySelectorAll('.dock-link');
     const bgVideo = document.getElementById('ambientBackgroundVideo');
 
-    // 1. Initialize Lenis Smooth Scroll
-    if (typeof Lenis !== 'undefined') {
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (window.innerWidth <= 768);
+
+    // 1. Initialize Lenis ONLY on Desktop (Mouse Wheel)
+    // On mobile touch devices, native 120Hz/60Hz touch scrolling with hardware momentum is vastly superior and instantaneous!
+    if (!isTouch && typeof Lenis !== 'undefined') {
       const lenis = new Lenis({
-        lerp: 0.09,           // Smoothing factor: Lower = heavier inertia
-        wheelMultiplier: 1.0,  // Natural scroll speed
+        lerp: 0.1,             // Snappy, responsive desktop inertia
+        wheelMultiplier: 1.15, // Fast natural scroll speed
         smoothWheel: true,
+        smoothTouch: false,    // NEVER hijack touch events
       });
 
       // Synchronize Lenis with GSAP ScrollTrigger updates
@@ -132,7 +136,7 @@ class AdhitthanaApp {
       }
       window.lenis = lenis;
 
-      // Smooth anchor scrolling
+      // Smooth anchor scrolling via Lenis for desktop
       document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
         anchor.addEventListener('click', (e) => {
           const href = anchor.getAttribute('href');
@@ -140,52 +144,75 @@ class AdhitthanaApp {
             e.preventDefault();
             playClick();
             const target = document.querySelector(href);
-            lenis.scrollTo(target, { offset: -30, duration: 1.2 });
+            lenis.scrollTo(target, { offset: -30, duration: 1.0 });
+          }
+        });
+      });
+    } else {
+      // Mobile / Touch: Use native smooth scroll for anchor links with zero lag
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+          const href = anchor.getAttribute('href');
+          if (href && href !== '#' && document.querySelector(href)) {
+            e.preventDefault();
+            playClick();
+            const target = document.querySelector(href);
+            const top = target.getBoundingClientRect().top + window.pageYOffset - 50;
+            window.scrollTo({ top, behavior: 'smooth' });
           }
         });
       });
     }
 
-    // 2. Hero Pinning & Aperture Zoom Scrub (Jesco Jets Reference)
+    // 2. Hero Pinning & Aperture Zoom Scrub
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && document.querySelector('.hero-section')) {
-      const heroTimeline = gsap.timeline({
-        scrollTrigger: {
-          trigger: '.hero-section',
-          start: 'top top',
-          end: '+=150%',       // Pin duration (1.5x viewport distance)
-          pin: true,
-          scrub: 1,            // 1-second momentum lag on scrub for buttery motion
-          anticipatePin: 1,
-        },
+      gsap.registerPlugin(ScrollTrigger);
+
+      // Distinct Desktop vs Mobile configurations using gsap.matchMedia
+      const mm = gsap.matchMedia();
+
+      mm.add("(min-width: 769px)", () => {
+        // Desktop: Full Jesco Jets pinned aperture zoom scrub
+        const heroTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: '.hero-section',
+            start: 'top top',
+            end: '+=100%',       // Clean, fast pin duration
+            pin: true,
+            scrub: 0.5,          // Snappy 0.5s scrub instead of sluggish 1.0s
+            anticipatePin: 1,
+          },
+        });
+
+        heroTimeline
+          .fromTo(
+            '.media-canvas',
+            { scale: 1.0, borderRadius: '0px' },
+            { scale: 0.82, borderRadius: '32px', ease: 'power2.inOut' },
+            0
+          )
+          .to(
+            '.hero-overlay-copy',
+            { y: -50, opacity: 0.15, ease: 'power2.inOut' },
+            0
+          );
       });
 
-      heroTimeline
-        // Shrink the full-bleed canvas into a rounded floating card
-        .fromTo(
-          '.media-canvas',
-          {
-            scale: 1.0,
-            borderRadius: '0px',
-          },
-          {
-            scale: 0.82,
-            borderRadius: '32px',
-            ease: 'power2.inOut',
-          },
-          0
-        )
-        // Fade and elevate typography as zoom pulls out
-        .to(
-          '.hero-overlay-copy',
-          {
-            y: -50,
-            opacity: 0.15,
-            ease: 'power2.inOut',
-          },
-          0
-        );
+      mm.add("(max-width: 768px)", () => {
+        // Mobile: NO PINNING! Completely unblocked, natural thumb swipe scrolling
+        gsap.to('.media-canvas', {
+          scale: 0.96,
+          borderRadius: '20px',
+          scrollTrigger: {
+            trigger: '.hero-section',
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          }
+        });
+      });
 
-      // 3. Dynamic Background Theme Swapper (Breakthrough Energy Reference)
+      // 3. Dynamic Background Theme Swapper
       const themeMap = {
         dark: { bg: '#0b0c0e', text: '#f0f2f5' },
         light: { bg: '#f5f4f0', text: '#121314' },
@@ -200,7 +227,7 @@ class AdhitthanaApp {
 
         ScrollTrigger.create({
           trigger: panel,
-          start: 'top 50%',     // Activates when section hits viewport center
+          start: 'top 50%',
           end: 'bottom 50%',
           onEnter: () => this.applyTheme(palette),
           onEnterBack: () => this.applyTheme(palette),
@@ -218,8 +245,8 @@ class AdhitthanaApp {
         progressBar.style.width = `${progress}%`;
       }
 
-      // Parallax on background video
-      if (bgVideo && scrollY < window.innerHeight * 1.5) {
+      // Parallax on background video only on desktop
+      if (!isTouch && bgVideo && scrollY < window.innerHeight * 1.5) {
         bgVideo.style.transform = `scale(${1 + scrollY * 0.00025}) translateY(${scrollY * 0.08}px)`;
       }
 
@@ -470,6 +497,37 @@ class AdhitthanaApp {
         document.getElementById(tabId)?.classList.add('active');
       });
     });
+
+    // Calendar Picker Button Trigger
+    const dateInput = document.getElementById('entry-date');
+    const btnCalendar = document.getElementById('btn-trigger-calendar');
+
+    if (btnCalendar && dateInput) {
+      btnCalendar.addEventListener('click', (e) => {
+        e.preventDefault();
+        playClick();
+        try {
+          if (typeof dateInput.showPicker === 'function') {
+            dateInput.showPicker();
+          } else {
+            dateInput.focus();
+            dateInput.click();
+          }
+        } catch (err) {
+          dateInput.focus();
+        }
+      });
+    }
+
+    if (dateInput) {
+      dateInput.addEventListener('click', () => {
+        try {
+          if (typeof dateInput.showPicker === 'function') {
+            dateInput.showPicker();
+          }
+        } catch (e) {}
+      });
+    }
 
     // 2. Header Meditator Switcher
     document.querySelectorAll('[data-set-user]').forEach(btn => {
