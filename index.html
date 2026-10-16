@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- Complete Inlined Stylesheet for Instant Zero-FOUC Bulletproof Delivery -->
-  <link rel="stylesheet" href="styles.css?v=2.5">
+  <link rel="stylesheet" href="styles.css?v=3.0">
   <style>
 /* =====================================================================
    ADHIṬṬHĀNA — AWWWARDS-TIER SCROLL-BASED ARCHITECTURE
@@ -27,6 +27,17 @@
    ===================================================================== */
 
 :root {
+  /* Dynamic Theme Palette Definitions (Caler Edwards Showcase) */
+  --bg-dark: #0b0c0e;
+  --text-dark: #f0f2f5;
+  --bg-light: #f5f4f0;
+  --text-light: #121314;
+  --bg-forest: #0d140f;
+  --text-forest: #ccff00;
+
+  --bg-current: var(--bg-dark);
+  --text-current: var(--text-dark);
+
   --bg-deep: #0B0C0E;
   --bg-darker: #060709;
   --bg-surface: rgba(18, 24, 20, 0.72);
@@ -68,13 +79,135 @@ html {
 }
 
 body {
-  background-color: var(--bg-deep);
-  color: var(--text-main);
+  margin: 0;
+  background-color: var(--bg-current);
+  color: var(--text-current);
   font-family: var(--font-sans);
   line-height: 1.6;
   overflow-x: hidden;
   min-height: 100vh;
   position: relative;
+  transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Inertial Smooth Scrolling Container */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+
+/* =====================================================================
+   PINNED HERO & APERTURE ZOOM ENGINE (JESCO JETS & GSAP SCROLLTRIGGER)
+   ===================================================================== */
+.pin-panel.hero-section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.zoom-frame {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* The element being scaled and scrubbed */
+.media-canvas {
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(20, 28, 23, 0.72) 0%, rgba(11, 12, 14, 0.95) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0px;
+  will-change: transform, border-radius;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.hero-overlay-copy {
+  text-align: center;
+  padding: 0 1.5rem;
+  max-width: 900px;
+  width: 100%;
+  z-index: 2;
+  will-change: transform, opacity;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.15em;
+  color: var(--accent-volt);
+  margin-bottom: 1.25rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(190, 242, 2, 0.08);
+  border: 1px solid rgba(190, 242, 2, 0.25);
+  padding: 0.4rem 1.1rem;
+  border-radius: 9999px;
+  box-shadow: 0 0 16px rgba(190, 242, 2, 0.2);
+}
+
+.display-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2.6rem, 6.5vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 1rem 0;
+  color: #FFFFFF;
+  mix-blend-mode: difference;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+/* Content Panels */
+.content-panel {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 6.5rem 1.5rem 5rem 1.5rem;
+  transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-badge {
+  display: inline-block;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  border: 1px solid currentColor;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
 }
 
 /* 1. THE SVG NOISE FILTER + PERSISTENT POINTER-SAFE FILM GRAIN */
@@ -1834,36 +1967,44 @@ body {
     <!-- ===================================================================
          HERO SECTION: DYNAMIC BLEND-MODE DIFFERENCE TYPOGRAPHY (BREAKTHROUGH ENERGY)
          =================================================================== -->
-    <section id="hero" class="page-section hero-section">
-      <div class="blend-headline-container">
-        <div class="stat-pill">01 // TELEMETRY &bull; DISCIPLINE &bull; ENLIGHTENMENT</div>
-        <h1 class="blend-display-title">UNBROKEN STILLNESS</h1>
-        <div class="accent-reveal-bar"></div>
+    <section id="hero" class="pin-panel hero-section" data-theme-target="dark">
+      <div class="zoom-frame">
+        <div class="media-canvas">
+          <div class="hero-overlay-copy">
+            <span class="eyebrow">01 // ADHIṬṬHĀNA &bull; THE CRUCIBLE OF STILLNESS</span>
+            <h1 class="display-title blend-display-title">UNBROKEN STILLNESS</h1>
+            <div class="accent-reveal-bar"></div>
 
-        <p class="hero-subtitle">
-          An Awwwards-tier meditation telemetry suite &amp; unbroken journal for Zabir &amp; Soham Sadhu. Measuring absolute stillness with zero retreat.
-        </p>
+            <p class="hero-subtitle">
+              High-velocity meditation telemetry &amp; unbroken crucible for Zabir &amp; Soham Sadhu. Measuring absolute stillness with zero retreat.
+            </p>
 
-        <!-- Baseline Milestone Banner -->
-        <div class="hero-telemetry-banner">
-          <div class="telemetry-pill">
-            <span class="t-label">DAY 1 BASELINE</span>
-            <span class="t-value">Soham: 15m &bull; Zabir: 11m 8s</span>
-          </div>
-          <div class="telemetry-pill">
-            <span class="t-label">CURRENT OBJECTIVE</span>
-            <span class="t-value">15 Mins Unbroken Daily</span>
-          </div>
-        </div>
-
-        <!-- Scroll Indicator -->
-        <div class="hero-scroll-prompt">
-          <a href="#command-center" class="scroll-cue-link">
-            <div class="mouse-icon">
-              <div class="mouse-wheel"></div>
+            <!-- Baseline Milestone Banner -->
+            <div class="hero-telemetry-banner">
+              <div class="telemetry-pill">
+                <span class="t-label">DAY 1 BASELINE</span>
+                <span class="t-val cyan">SOHAM &bull; 15M (COMPLETE)</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="t-label">DAY 1 BASELINE</span>
+                <span class="t-val purple">ZABIR &bull; 11M 8S (TIME OUT)</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="t-label">CURRENT OBJECTIVE</span>
+                <span class="t-val volt">15 MIN MINIMUM</span>
+              </div>
             </div>
-            <span class="scroll-cue-text">SCROLL TO EMULATOR</span>
-          </a>
+
+            <!-- Scroll Indicator -->
+            <div class="hero-scroll-prompt">
+              <a href="#command-center" class="scroll-cue-link">
+                <div class="mouse-icon">
+                  <div class="mouse-wheel"></div>
+                </div>
+                <span class="scroll-cue-text">SCROLL TO ENTER STILLNESS</span>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -1871,7 +2012,7 @@ body {
     <!-- ===================================================================
          SECTION 1: MIDLIFE ENGINEERING OPERATIONAL PRODUCT EMULATOR (LOGGER + LIVE SIMULATOR)
          =================================================================== -->
-    <section id="command-center" class="page-section section-command-center">
+    <section id="command-center" class="content-panel page-section section-command-center" data-theme-target="forest">
       <div class="section-header-block">
         <span class="section-tag-pill">02 // FUNCTIONAL EMULATOR</span>
         <h2 class="section-title">The Stillness Command Center</h2>
@@ -2026,7 +2167,7 @@ body {
     <!-- ===================================================================
          SECTION 2: LANDO NORRIS F1-STYLE TELEMETRY & PROGRESS
          =================================================================== -->
-    <section id="telemetry" class="page-section section-telemetry">
+    <section id="telemetry" class="content-panel page-section section-telemetry" data-theme-target="dark">
       <div class="section-header-block">
         <span class="section-tag-pill">03 // KINETIC TELEMETRY</span>
         <h2 class="section-title">Head-to-Head Telemetry</h2>
@@ -2152,7 +2293,7 @@ body {
     <!-- ===================================================================
          SECTION 3: VISUAL ANALYTICS & INTERACTIVE GRAPHS
          =================================================================== -->
-    <section id="analytics" class="page-section section-analytics">
+    <section id="analytics" class="content-panel page-section section-analytics" data-theme-target="forest">
       <div class="section-header-block">
         <span class="section-tag-pill">04 // PERFORMANCE DYNAMICS</span>
         <h2 class="section-title">Stillness Analytics</h2>
@@ -2228,7 +2369,7 @@ body {
     <!-- ===================================================================
          SECTION 4: THE UNBROKEN CHRONICLE (PAST ENTRIES FEED)
          =================================================================== -->
-    <section id="journal" class="page-section section-journal">
+    <section id="journal" class="content-panel page-section section-journal" data-theme-target="dark">
       <div class="section-header-block">
         <span class="section-tag-pill">05 // HISTORICAL LOG</span>
         <h2 class="section-title">The Unbroken Chronicle</h2>
@@ -2398,6 +2539,10 @@ body {
   <div id="toast-container"></div>
 
   <!-- Application Logic Scripts -->
+  <!-- CDN Dependencies: Lenis & GSAP ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.9/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="canvas-bg.js"></script>
   <script src="sync.js"></script>
   <script src="charts.js"></script>
