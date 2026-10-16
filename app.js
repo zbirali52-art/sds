@@ -1035,16 +1035,37 @@ class AdhitthanaApp {
   }
 
   async deleteSit(sitId) {
-    if (!confirm('Are you sure you want to delete this meditation entry?')) return;
+    if (!confirm('Are you sure you want to permanently delete this meditation entry?')) return;
+    if (typeof playClick === 'function') playClick();
+
+    // 1. Immediate UI update for instant feedback
     this.allSits = this.allSits.filter(s => s.id !== sitId);
-    window.syncManager.saveLocal(this.allSits);
     this.renderGoals();
     this.renderMetrics();
     this.renderFeed();
     if (window.zenCharts) {
       window.zenCharts.renderAll(this.allSits);
     }
-    this.showToast('Entry deleted.');
+    this.showToast('🗑️ Deleting entry & syncing across devices...');
+
+    // 2. Delegate to syncManager for tombstone registration & cloud sync
+    if (window.syncManager && typeof window.syncManager.deleteSit === 'function') {
+      const res = await window.syncManager.deleteSit(sitId);
+      this.allSits = window.syncManager.loadLocal();
+      this.renderGoals();
+      this.renderMetrics();
+      this.renderFeed();
+      if (window.zenCharts) {
+        window.zenCharts.renderAll(this.allSits);
+      }
+      if (res && res.success === false) {
+        this.showToast('⚠️ Deleted locally. Cloud sync pending: ' + (res.error || 'offline'));
+      } else {
+        this.showToast('✓ Entry permanently deleted & synced across all devices.');
+      }
+    } else {
+      this.showToast('Entry deleted locally.');
+    }
   }
 
   /* ---------------- 13. MODALS & TOASTS ---------------- */
