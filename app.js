@@ -1,15 +1,54 @@
 /**
  * Adhiṭṭhāna Application Controller
  * Scroll-Driven Architecture Inspired by Caler Edwards ("5 Must-Visit Scroll-Based Website Designs")
- * Coordinates:
- * - Scroll Progress & Parallax Depth
- * - Magnetic Custom Cursor Micro-Interactions
- * - IntersectionObserver Staggered Scroll Reveals
- * - Inline Past Entry Logger for Zabir & Soham
- * - Head-to-Head Telemetry & Daily Target Progress
- * - Chart.js Visual Analytics & Consistency Heatmap
- * - Unbroken Chronicle Feed & Peer Synchronization
+ * Synthesizes:
+ * - Jesco Jets: Viewport Aperture Zoom Scrub (GSAP ScrollTrigger + Lenis)
+ * - Lando Norris: Kinetic Telemetry & Brutalist Driver Performance
+ * - 17y Agency: Tactile Micro-Synthesizer Clicks (Web Audio API)
+ * - Breakthrough Energy: Dynamic Blend-Mode Difference Typography & Theme Swapper
+ * - Midlife Engineering: Interactive Product Emulator (Past Logger + Live Stillness Simulator)
  */
+
+/* ---------------- 1. TACTILE AUDIO MICRO-SYNTHESIZER (17y AGENCY) ---------------- */
+
+function playClick() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!window.sfxAudioCtx) {
+      window.sfxAudioCtx = new AudioCtx();
+    }
+    const ctx = window.sfxAudioCtx;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    const now = ctx.currentTime;
+    osc.frequency.setValueAtTime(420, now);
+    osc.frequency.exponentialRampToValueAtTime(70, now + 0.015);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.015);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.016);
+  } catch (e) {
+    // Silent fallback
+  }
+}
+
+// Global tactile click event delegation
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('button, a, input, select, textarea, .pill-preset, .bg-option-card, .filter-pill, .timeframe-btn, .emulator-tab-btn');
+  if (target) {
+    playClick();
+  }
+}, true);
+
+
+/* ---------------- 2. MAIN APPLICATION CLASS ---------------- */
 
 class AdhitthanaApp {
   constructor() {
@@ -17,7 +56,14 @@ class AdhitthanaApp {
     this.currentFeedFilter = 'all';
     this.allSits = [];
     this.currentBg = localStorage.getItem('adhitthana_bg_pref') || 'video';
-    
+
+    // Live Simulator State
+    this.simRunning = false;
+    this.simPaused = false;
+    this.simElapsed = 0;
+    this.simTarget = 15 * 60; // 15 mins default (900 seconds)
+    this.simInterval = null;
+
     // Magnetic Cursor Coordinates
     this.mouse = { x: -100, y: -100 };
     this.follower = { x: -100, y: -100 };
@@ -29,6 +75,7 @@ class AdhitthanaApp {
 
     this.initScrollEngine();
     this.initMagneticCursor();
+    this.initSimulator();
     this.bindEvents();
     this.initFormDefaults();
     this.initBackground();
@@ -42,7 +89,7 @@ class AdhitthanaApp {
       if (window.zenCharts) {
         window.zenCharts.init(this.allSits);
       }
-    }, 200);
+    }, 250);
 
     // Sync updates listener
     window.syncManager.onUpdate((sits) => {
@@ -58,7 +105,7 @@ class AdhitthanaApp {
     window.syncManager.pullSync();
   }
 
-  /* ---------------- SCROLL ENGINE & PARALLAX (CALER EDWARDS) ---------------- */
+  /* ---------------- 3. LENIS INERTIAL SCROLL & GSAP SCROLLTRIGGER ---------------- */
 
   initScrollEngine() {
     const progressBar = document.getElementById('scroll-progress');
@@ -66,7 +113,102 @@ class AdhitthanaApp {
     const navLinks = document.querySelectorAll('.dock-link');
     const bgVideo = document.getElementById('ambientBackgroundVideo');
 
-    // 1. Scroll Progress Bar & Parallax
+    // 1. Initialize Lenis Smooth Scroll
+    if (typeof Lenis !== 'undefined') {
+      const lenis = new Lenis({
+        lerp: 0.09,           // Smoothing factor: Lower = heavier inertia
+        wheelMultiplier: 1.0,  // Natural scroll speed
+        smoothWheel: true,
+      });
+
+      // Synchronize Lenis with GSAP ScrollTrigger updates
+      if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => {
+          lenis.raf(time * 1000);
+        });
+        gsap.ticker.lagSmoothing(0);
+      }
+      window.lenis = lenis;
+
+      // Smooth anchor scrolling
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener('click', (e) => {
+          const href = anchor.getAttribute('href');
+          if (href && href !== '#' && document.querySelector(href)) {
+            e.preventDefault();
+            playClick();
+            const target = document.querySelector(href);
+            lenis.scrollTo(target, { offset: -30, duration: 1.2 });
+          }
+        });
+      });
+    }
+
+    // 2. Hero Pinning & Aperture Zoom Scrub (Jesco Jets Reference)
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && document.querySelector('.hero-section')) {
+      const heroTimeline = gsap.timeline({
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: '+=150%',       // Pin duration (1.5x viewport distance)
+          pin: true,
+          scrub: 1,            // 1-second momentum lag on scrub for buttery motion
+          anticipatePin: 1,
+        },
+      });
+
+      heroTimeline
+        // Shrink the full-bleed canvas into a rounded floating card
+        .fromTo(
+          '.media-canvas',
+          {
+            scale: 1.0,
+            borderRadius: '0px',
+          },
+          {
+            scale: 0.82,
+            borderRadius: '32px',
+            ease: 'power2.inOut',
+          },
+          0
+        )
+        // Fade and elevate typography as zoom pulls out
+        .to(
+          '.hero-overlay-copy',
+          {
+            y: -50,
+            opacity: 0.15,
+            ease: 'power2.inOut',
+          },
+          0
+        );
+
+      // 3. Dynamic Background Theme Swapper (Breakthrough Energy Reference)
+      const themeMap = {
+        dark: { bg: '#0b0c0e', text: '#f0f2f5' },
+        light: { bg: '#f5f4f0', text: '#121314' },
+        forest: { bg: '#0d140f', text: '#ccff00' },
+      };
+
+      document.querySelectorAll('[data-theme-target]').forEach((panel) => {
+        const targetTheme = panel.getAttribute('data-theme-target');
+        const palette = themeMap[targetTheme];
+
+        if (!palette) return;
+
+        ScrollTrigger.create({
+          trigger: panel,
+          start: 'top 50%',     // Activates when section hits viewport center
+          end: 'bottom 50%',
+          onEnter: () => this.applyTheme(palette),
+          onEnterBack: () => this.applyTheme(palette),
+        });
+      });
+    }
+
+    // 4. Scroll Progress Bar & Parallax Background Video
     window.addEventListener('scroll', () => {
       const scrollY = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -97,25 +239,14 @@ class AdhitthanaApp {
         });
       }
     }, { passive: true });
-
-    // 2. IntersectionObserver for Staggered Scroll Reveals
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-revealed');
-        }
-      });
-    }, {
-      threshold: 0.12,
-      rootMargin: '0px 0px -40px 0px'
-    });
-
-    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
-      revealObserver.observe(el);
-    });
   }
 
-  /* ---------------- MAGNETIC CURSOR MICRO-INTERACTIONS ---------------- */
+  applyTheme({ bg, text }) {
+    document.documentElement.style.setProperty('--bg-current', bg);
+    document.documentElement.style.setProperty('--text-current', text);
+  }
+
+  /* ---------------- 4. MAGNETIC CURSOR MICRO-INTERACTIONS ---------------- */
 
   initMagneticCursor() {
     if (!this.isDesktop) return;
@@ -147,10 +278,200 @@ class AdhitthanaApp {
     });
   }
 
-  /* ---------------- EVENTS & INTERACTIONS ---------------- */
+  /* ---------------- 5. LIVE STILLNESS SIMULATOR (MIDLIFE ENGINEERING) ---------------- */
+
+  initSimulator() {
+    const btnStart = document.getElementById('btn-sim-start');
+    const btnPause = document.getElementById('btn-sim-pause');
+    const btnTimeout = document.getElementById('btn-sim-timeout');
+    const btnReset = document.getElementById('btn-sim-reset');
+
+    btnStart?.addEventListener('click', () => this.startSimulator());
+    btnPause?.addEventListener('click', () => this.pauseSimulator());
+    btnTimeout?.addEventListener('click', () => this.timeoutSimulator());
+    btnReset?.addEventListener('click', () => this.resetSimulator());
+
+    this.updateSimulatorUI();
+  }
+
+  startSimulator() {
+    if (this.simRunning && !this.simPaused) return;
+
+    this.simRunning = true;
+    this.simPaused = false;
+
+    const btnStart = document.getElementById('btn-sim-start');
+    const btnPause = document.getElementById('btn-sim-pause');
+    const btnTimeout = document.getElementById('btn-sim-timeout');
+
+    if (btnStart) btnStart.style.display = 'none';
+    if (btnPause) {
+      btnPause.style.display = 'inline-flex';
+      btnPause.textContent = '⏸ Pause';
+    }
+    if (btnTimeout) btnTimeout.style.display = 'inline-flex';
+
+    clearInterval(this.simInterval);
+    this.simInterval = setInterval(() => {
+      this.simElapsed += 1;
+      this.updateSimulatorUI();
+
+      if (this.simElapsed >= this.simTarget) {
+        this.completeSimulator();
+      }
+    }, 1000);
+
+    const userName = this.currentUser === 'Soham' ? 'Soham Sadhu' : 'Zabir';
+    this.showToast(`🧘 Stillness vow engaged for ${userName}. Breathe and observe.`);
+  }
+
+  pauseSimulator() {
+    if (!this.simRunning) return;
+
+    const btnPause = document.getElementById('btn-sim-pause');
+    if (!this.simPaused) {
+      this.simPaused = true;
+      clearInterval(this.simInterval);
+      if (btnPause) btnPause.textContent = '▶ Resume';
+      this.showToast('Stillness timer paused.');
+    } else {
+      this.simPaused = false;
+      if (btnPause) btnPause.textContent = '⏸ Pause';
+      this.simInterval = setInterval(() => {
+        this.simElapsed += 1;
+        this.updateSimulatorUI();
+        if (this.simElapsed >= this.simTarget) {
+          this.completeSimulator();
+        }
+      }, 1000);
+      this.showToast('Stillness timer resumed.');
+    }
+  }
+
+  updateSimulatorUI() {
+    const timeDisplay = document.getElementById('sim-time-display');
+    const statusSub = document.getElementById('sim-status-sub');
+    const userTag = document.getElementById('sim-user-display');
+    const progCircle = document.getElementById('sim-track-progress');
+
+    if (userTag) {
+      userTag.textContent = (this.currentUser === 'Soham' ? 'SOHAM SADHU' : 'ZABIR').toUpperCase();
+    }
+
+    const remaining = Math.max(0, this.simTarget - this.simElapsed);
+    const m = Math.floor(remaining / 60);
+    const s = remaining % 60;
+    if (timeDisplay) {
+      timeDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    const elapsedM = Math.floor(this.simElapsed / 60);
+    const elapsedS = this.simElapsed % 60;
+    const targetM = Math.round(this.simTarget / 60);
+    if (statusSub) {
+      statusSub.textContent = `Stillness: ${elapsedM}m ${elapsedS}s / Goal: ${targetM}m`;
+    }
+
+    if (progCircle) {
+      const circumference = 552.92;
+      const progressRatio = Math.min(1, this.simElapsed / this.simTarget);
+      const offset = circumference * (1 - progressRatio);
+      progCircle.style.strokeDashoffset = offset;
+    }
+  }
+
+  async timeoutSimulator() {
+    clearInterval(this.simInterval);
+    this.simRunning = false;
+    this.simPaused = false;
+
+    const elapsedM = Math.floor(this.simElapsed / 60);
+    const elapsedS = this.simElapsed % 60;
+    const durationMins = elapsedM + (elapsedS / 60);
+    const displayDur = elapsedS > 0 ? `${elapsedM}m ${elapsedS}s` : `${elapsedM}m`;
+
+    const reason = prompt(
+      `⚠️ TIME OUT PROTOCOL ENGAGED\nYou maintained stillness for ${displayDur}.\nWhat prompted you to move?`,
+      'Physical burn in knees / urge to adjust'
+    ) || 'Physical burn in knees / urge to adjust';
+
+    const sit = {
+      user: this.currentUser,
+      displayName: this.currentUser === 'Soham' ? 'Soham Sadhu' : 'Zabir',
+      date: new Date().toISOString().split('T')[0],
+      durationMinutes: Math.round(durationMins * 100) / 100,
+      displayDuration: displayDur,
+      targetMinutes: Math.round(this.simTarget / 60),
+      status: 'timeout',
+      movedAtMinutes: Math.round(durationMins * 100) / 100,
+      movementReason: reason,
+      reflection: `Live Stillness Simulator: Called Time Out at ${displayDur}. Rule of absolute honesty honored.`,
+      timestamp: Date.now()
+    };
+
+    await window.syncManager.addSit(sit);
+    this.resetSimulator();
+    this.showToast(`⚠️ Time Out recorded for ${sit.displayName} (${displayDur}). Truth honored.`);
+  }
+
+  async completeSimulator() {
+    clearInterval(this.simInterval);
+    this.simRunning = false;
+    this.simPaused = false;
+
+    const elapsedM = Math.floor(this.simElapsed / 60);
+    const displayDur = `${elapsedM} mins`;
+
+    const sit = {
+      user: this.currentUser,
+      displayName: this.currentUser === 'Soham' ? 'Soham Sadhu' : 'Zabir',
+      date: new Date().toISOString().split('T')[0],
+      durationMinutes: elapsedM,
+      displayDuration: displayDur,
+      targetMinutes: Math.round(this.simTarget / 60),
+      status: 'completed',
+      movedAtMinutes: null,
+      movementReason: null,
+      reflection: `Live Stillness Simulator: Completed full ${displayDur} Strong Determination Sit with unbroken resolve!`,
+      timestamp: Date.now()
+    };
+
+    await window.syncManager.addSit(sit);
+    this.resetSimulator();
+    this.showToast(`🏆 FULL STILLNESS ACHIEVED! ${displayDur} logged for ${sit.displayName}!`);
+  }
+
+  resetSimulator() {
+    clearInterval(this.simInterval);
+    this.simRunning = false;
+    this.simPaused = false;
+    this.simElapsed = 0;
+
+    const btnStart = document.getElementById('btn-sim-start');
+    const btnPause = document.getElementById('btn-sim-pause');
+    const btnTimeout = document.getElementById('btn-sim-timeout');
+    if (btnStart) btnStart.style.display = 'inline-flex';
+    if (btnPause) btnPause.style.display = 'none';
+    if (btnTimeout) btnTimeout.style.display = 'none';
+
+    this.updateSimulatorUI();
+  }
+
+  /* ---------------- 6. EVENTS & BINDINGS ---------------- */
 
   bindEvents() {
-    // 1. Header Meditator Switcher
+    // 1. Emulator Tab Bar (Midlife Engineering Tabbed Emulator)
+    document.querySelectorAll('.emulator-tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const tabId = e.currentTarget.getAttribute('data-tab');
+        document.querySelectorAll('.emulator-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.emulator-tab-content').forEach(c => c.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        document.getElementById(tabId)?.classList.add('active');
+      });
+    });
+
+    // 2. Header Meditator Switcher
     document.querySelectorAll('[data-set-user]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const user = e.currentTarget.getAttribute('data-set-user');
@@ -158,7 +479,7 @@ class AdhitthanaApp {
       });
     });
 
-    // 2. Past Entry Form Meditator Segment Buttons
+    // 3. Past Entry Form Meditator Segment Buttons
     document.getElementById('btn-select-zabir')?.addEventListener('click', () => {
       this.setFormUser('Zabir');
     });
@@ -166,7 +487,7 @@ class AdhitthanaApp {
       this.setFormUser('Soham');
     });
 
-    // 3. Quick Duration Presets
+    // 4. Quick Duration Presets
     document.querySelectorAll('.pill-preset').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const min = e.currentTarget.getAttribute('data-min');
@@ -186,7 +507,7 @@ class AdhitthanaApp {
       });
     });
 
-    // 4. Outcome Radio Toggle
+    // 5. Outcome Radio Toggle
     const outcomeRadios = document.querySelectorAll('input[name="entry-outcome"]');
     outcomeRadios.forEach(radio => {
       radio.addEventListener('change', (e) => {
@@ -205,13 +526,13 @@ class AdhitthanaApp {
       });
     });
 
-    // 5. Submit Past Entry Form
+    // 6. Submit Past Entry Form
     document.getElementById('form-past-entry')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handlePastEntrySubmit();
     });
 
-    // 6. Feed Filter Tabs
+    // 7. Feed Filter Tabs
     document.querySelectorAll('.filter-pill').forEach(tab => {
       tab.addEventListener('click', (e) => {
         document.querySelectorAll('.filter-pill').forEach(t => t.classList.remove('active'));
@@ -221,7 +542,7 @@ class AdhitthanaApp {
       });
     });
 
-    // 7. Goals Modal
+    // 8. Goals Modal
     document.getElementById('btn-edit-goals-banner')?.addEventListener('click', () => {
       const goals = window.syncManager.getGoals();
       if (document.getElementById('goal-zabir-daily')) {
@@ -251,7 +572,7 @@ class AdhitthanaApp {
       this.showToast('🎯 Determination targets updated!');
     });
 
-    // 8. Background Selector Modal
+    // 9. Background Selector Modal
     document.getElementById('btn-toggle-bg')?.addEventListener('click', () => {
       this.openModal('modal-bg-select');
     });
@@ -264,7 +585,7 @@ class AdhitthanaApp {
       });
     });
 
-    // 9. Sync Modal
+    // 10. Sync Modal
     document.getElementById('btn-open-sync')?.addEventListener('click', () => {
       this.openModal('modal-sync');
       const tokenInput = document.getElementById('input-gh-token');
@@ -309,7 +630,7 @@ class AdhitthanaApp {
       reader.readAsText(file);
     });
 
-    // 10. Close Modals
+    // 11. Close Modals
     document.querySelectorAll('.modal-close, .modal-backdrop').forEach(el => {
       el.addEventListener('click', () => this.closeModals());
     });
@@ -323,13 +644,14 @@ class AdhitthanaApp {
     this.setFormUser(this.currentUser);
   }
 
-  /* ---------------- USER SWITCHER ---------------- */
+  /* ---------------- 7. USER SWITCHER ---------------- */
 
   setUser(user) {
     this.currentUser = user;
     localStorage.setItem('adhitthana_user', user);
     this.updateUserUI();
     this.setFormUser(user);
+    this.updateSimulatorUI();
     this.showToast(`Active meditator: ${user === 'Soham' ? 'Soham Sadhu' : user}`);
   }
 
@@ -356,7 +678,7 @@ class AdhitthanaApp {
     });
   }
 
-  /* ---------------- BACKGROUND SWITCHER ---------------- */
+  /* ---------------- 8. BACKGROUND SWITCHER ---------------- */
 
   initBackground() {
     this.setBackground(this.currentBg);
@@ -400,7 +722,7 @@ class AdhitthanaApp {
     this.showToast(`Background: ${bgName.replace('_', ' ').toUpperCase()}`);
   }
 
-  /* ---------------- LOG PAST ENTRY SUBMIT ---------------- */
+  /* ---------------- 9. LOG PAST ENTRY SUBMIT ---------------- */
 
   async handlePastEntrySubmit() {
     const user = document.getElementById('entry-user').value || this.currentUser;
@@ -421,32 +743,26 @@ class AdhitthanaApp {
       return;
     }
 
-    const durationMinutes = Math.round((mins + (secs / 60)) * 100) / 100;
+    const durationMinutes = mins + (secs / 60);
     const displayDuration = secs > 0 ? `${mins}m ${secs}s` : `${mins} mins`;
     const displayName = user === 'Soham' ? 'Soham Sadhu' : 'Zabir';
 
-    const defaultReflection = status === 'completed'
-      ? `Completed ${displayDuration} of unbroken Adhiṭṭhāna stillness.`
-      : `Called Time Out after ${displayDuration} due to ${reason.toLowerCase()}. Honoring absolute honesty.`;
-
     const sit = {
-      id: 'sit_' + Date.now(),
       user: user,
       displayName: displayName,
       date: date,
-      durationMinutes: durationMinutes,
+      durationMinutes: Math.round(durationMinutes * 100) / 100,
       displayDuration: displayDuration,
       targetMinutes: target,
       status: status,
-      movedAtMinutes: status === 'timeout' ? durationMinutes : null,
+      movedAtMinutes: status === 'timeout' ? Math.round(durationMinutes * 100) / 100 : null,
       movementReason: reason,
-      reflection: reflection || defaultReflection,
-      timestamp: new Date(date).getTime() + (12 * 3600 * 1000)
+      reflection: reflection || (status === 'completed' ? 'Maintained unbroken stillness in meditation.' : 'Observed bodily urge to move with mindfulness.'),
+      timestamp: Date.now()
     };
 
     await window.syncManager.addSit(sit);
 
-    // Reset duration & reflection
     document.getElementById('entry-minutes').value = '';
     document.getElementById('entry-seconds').value = '';
     document.getElementById('entry-reflection').value = '';
@@ -455,7 +771,7 @@ class AdhitthanaApp {
     this.showToast(`✅ Saved sit for ${displayName} (${displayDuration})!`);
   }
 
-  /* ---------------- GOALS & TELEMETRY PROGRESS ---------------- */
+  /* ---------------- 10. GOALS & TELEMETRY PROGRESS ---------------- */
 
   renderGoals() {
     const goals = window.syncManager.getGoals();
@@ -496,7 +812,7 @@ class AdhitthanaApp {
     }
   }
 
-  /* ---------------- METRICS & STATS ---------------- */
+  /* ---------------- 11. METRICS & STATS ---------------- */
 
   formatMinutes(mins) {
     if (mins < 1) {
@@ -547,7 +863,7 @@ class AdhitthanaApp {
     if (sLongEl) sLongEl.textContent = this.formatMinutes(sohamMax);
   }
 
-  /* ---------------- UNBROKEN CHRONICLE (FEED) ---------------- */
+  /* ---------------- 12. UNBROKEN CHRONICLE (FEED) ---------------- */
 
   renderFeed() {
     const list = document.getElementById('sit-feed-container');
@@ -656,7 +972,7 @@ class AdhitthanaApp {
     this.showToast('Entry deleted.');
   }
 
-  /* ---------------- MODALS & TOASTS ---------------- */
+  /* ---------------- 13. MODALS & TOASTS ---------------- */
 
   openModal(modalId) {
     const modal = document.getElementById(modalId);
