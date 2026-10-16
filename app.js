@@ -1,6 +1,14 @@
 /**
  * Adhiṭṭhāna Application Controller
- * Handles Past Entry Logging for Zabir & Soham, Data Metrics, Graphs, Background Visuals, and Synchronization.
+ * Scroll-Driven Architecture Inspired by Caler Edwards ("5 Must-Visit Scroll-Based Website Designs")
+ * Coordinates:
+ * - Scroll Progress & Parallax Depth
+ * - Magnetic Custom Cursor Micro-Interactions
+ * - IntersectionObserver Staggered Scroll Reveals
+ * - Inline Past Entry Logger for Zabir & Soham
+ * - Head-to-Head Telemetry & Daily Target Progress
+ * - Chart.js Visual Analytics & Consistency Heatmap
+ * - Unbroken Chronicle Feed & Peer Synchronization
  */
 
 class AdhitthanaApp {
@@ -9,11 +17,18 @@ class AdhitthanaApp {
     this.currentFeedFilter = 'all';
     this.allSits = [];
     this.currentBg = localStorage.getItem('adhitthana_bg_pref') || 'video';
+    
+    // Magnetic Cursor Coordinates
+    this.mouse = { x: -100, y: -100 };
+    this.follower = { x: -100, y: -100 };
+    this.isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   }
 
   init() {
     this.allSits = window.syncManager.loadLocal();
 
+    this.initScrollEngine();
+    this.initMagneticCursor();
     this.bindEvents();
     this.initFormDefaults();
     this.initBackground();
@@ -43,6 +58,97 @@ class AdhitthanaApp {
     window.syncManager.pullSync();
   }
 
+  /* ---------------- SCROLL ENGINE & PARALLAX (CALER EDWARDS) ---------------- */
+
+  initScrollEngine() {
+    const progressBar = document.getElementById('scroll-progress');
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.dock-link');
+    const bgVideo = document.getElementById('ambientBackgroundVideo');
+
+    // 1. Scroll Progress Bar & Parallax
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+
+      if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+      }
+
+      // Parallax on background video
+      if (bgVideo && scrollY < window.innerHeight * 1.5) {
+        bgVideo.style.transform = `scale(${1 + scrollY * 0.00025}) translateY(${scrollY * 0.08}px)`;
+      }
+
+      // Active Section in Dock Navigation
+      let currentSectionId = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop - 180;
+        const height = sec.offsetHeight;
+        if (scrollY >= top && scrollY < top + height) {
+          currentSectionId = sec.getAttribute('id');
+        }
+      });
+
+      if (currentSectionId) {
+        navLinks.forEach(link => {
+          link.classList.toggle('active', link.getAttribute('data-nav') === currentSectionId);
+        });
+      }
+    }, { passive: true });
+
+    // 2. IntersectionObserver for Staggered Scroll Reveals
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: '0px 0px -40px 0px'
+    });
+
+    document.querySelectorAll('.reveal-on-scroll').forEach(el => {
+      revealObserver.observe(el);
+    });
+  }
+
+  /* ---------------- MAGNETIC CURSOR MICRO-INTERACTIONS ---------------- */
+
+  initMagneticCursor() {
+    if (!this.isDesktop) return;
+
+    const cursor = document.getElementById('custom-cursor');
+    const follower = document.getElementById('cursor-follower');
+    if (!cursor || !follower) return;
+
+    window.addEventListener('mousemove', (e) => {
+      this.mouse.x = e.clientX;
+      this.mouse.y = e.clientY;
+      cursor.style.transform = `translate(${this.mouse.x}px, ${this.mouse.y}px)`;
+    }, { passive: true });
+
+    // Smooth lerp follower loop
+    const renderFollower = () => {
+      this.follower.x += (this.mouse.x - this.follower.x) * 0.16;
+      this.follower.y += (this.mouse.y - this.follower.y) * 0.16;
+      follower.style.transform = `translate(${this.follower.x}px, ${this.follower.y}px)`;
+      requestAnimationFrame(renderFollower);
+    };
+    requestAnimationFrame(renderFollower);
+
+    // Interactive button expansions
+    const interactiveElements = document.querySelectorAll('button, a, input, select, textarea, .pill-preset, .bg-option-card, .filter-pill');
+    interactiveElements.forEach(el => {
+      el.addEventListener('mouseenter', () => follower.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => follower.classList.remove('hovering'));
+    });
+  }
+
+  /* ---------------- EVENTS & INTERACTIONS ---------------- */
+
   bindEvents() {
     // 1. Header Meditator Switcher
     document.querySelectorAll('[data-set-user]').forEach(btn => {
@@ -70,13 +176,11 @@ class AdhitthanaApp {
         if (minInput) minInput.value = min;
         if (secInput) secInput.value = sec;
 
-        // Auto-select target if empty or default
         const targetInput = document.getElementById('entry-target');
         if (targetInput && (!targetInput.value || targetInput.value === '15')) {
           targetInput.value = min;
         }
 
-        // Highlight active preset
         document.querySelectorAll('.pill-preset').forEach(p => p.classList.remove('active'));
         e.currentTarget.classList.add('active');
       });
@@ -108,9 +212,9 @@ class AdhitthanaApp {
     });
 
     // 6. Feed Filter Tabs
-    document.querySelectorAll('.feed-tab').forEach(tab => {
+    document.querySelectorAll('.filter-pill').forEach(tab => {
       tab.addEventListener('click', (e) => {
-        document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.filter-pill').forEach(t => t.classList.remove('active'));
         e.currentTarget.classList.add('active');
         this.currentFeedFilter = e.currentTarget.getAttribute('data-filter');
         this.renderFeed();
@@ -144,7 +248,7 @@ class AdhitthanaApp {
       window.syncManager.saveGoals(goals);
       this.closeModals();
       this.renderGoals();
-      this.showToast('🎯 Determination goals updated!');
+      this.showToast('🎯 Determination targets updated!');
     });
 
     // 8. Background Selector Modal
@@ -265,7 +369,6 @@ class AdhitthanaApp {
     const video = document.getElementById('ambientBackgroundVideo');
     const imgBg = document.getElementById('ambientBackgroundImage');
 
-    // Update active card in modal
     document.querySelectorAll('.bg-option-card').forEach(c => {
       c.classList.toggle('active', c.getAttribute('data-bg') === bgName);
     });
@@ -273,7 +376,7 @@ class AdhitthanaApp {
     if (bgName === 'video') {
       if (video) {
         video.style.display = 'block';
-        video.style.opacity = '0.58';
+        video.style.opacity = '0.52';
         video.play().catch(() => {});
       }
       if (imgBg) {
@@ -286,7 +389,7 @@ class AdhitthanaApp {
 
       if (imgBg) {
         imgBg.style.backgroundImage = `url('${imageSrc}')`;
-        imgBg.style.opacity = '0.72';
+        imgBg.style.opacity = '0.68';
       }
       if (video) {
         video.style.opacity = '0';
@@ -294,7 +397,7 @@ class AdhitthanaApp {
       }
     }
 
-    this.showToast(`Background set to: ${bgName.replace('_', ' ').toUpperCase()}`);
+    this.showToast(`Background: ${bgName.replace('_', ' ').toUpperCase()}`);
   }
 
   /* ---------------- LOG PAST ENTRY SUBMIT ---------------- */
@@ -338,13 +441,12 @@ class AdhitthanaApp {
       movedAtMinutes: status === 'timeout' ? durationMinutes : null,
       movementReason: reason,
       reflection: reflection || defaultReflection,
-      timestamp: new Date(date).getTime() + (12 * 3600 * 1000) // noon of that day
+      timestamp: new Date(date).getTime() + (12 * 3600 * 1000)
     };
 
-    // Save & sync sit
     await window.syncManager.addSit(sit);
 
-    // Reset fields except date and user
+    // Reset duration & reflection
     document.getElementById('entry-minutes').value = '';
     document.getElementById('entry-seconds').value = '';
     document.getElementById('entry-reflection').value = '';
@@ -353,7 +455,7 @@ class AdhitthanaApp {
     this.showToast(`✅ Saved sit for ${displayName} (${displayDuration})!`);
   }
 
-  /* ---------------- GOALS & PROGRESS ---------------- */
+  /* ---------------- GOALS & TELEMETRY PROGRESS ---------------- */
 
   renderGoals() {
     const goals = window.syncManager.getGoals();
@@ -386,11 +488,11 @@ class AdhitthanaApp {
     if (zStatus) {
       const zDisp = zabirToday >= 11 ? '11m 8s' : `${Math.round(zabirToday)}m`;
       zStatus.textContent = `${zDisp} / ${zTarget}m (${zPct}%)`;
-      zStatus.className = `goal-tag ${zPct >= 100 ? 'success' : 'warning'}`;
+      zStatus.className = `track-status ${zPct >= 100 ? 'success' : 'warning'}`;
     }
     if (sStatus) {
       sStatus.textContent = `${Math.round(sohamToday)}m / ${sTarget}m (${sPct >= 100 ? '100% Met! 🔥' : sPct + '%'})`;
-      sStatus.className = `goal-tag ${sPct >= 100 ? 'success' : 'warning'}`;
+      sStatus.className = `track-status ${sPct >= 100 ? 'success' : 'warning'}`;
     }
   }
 
@@ -428,24 +530,24 @@ class AdhitthanaApp {
     const zabirMax = zabirSits.length ? Math.max(...zabirSits.map(s => Number(s.durationMinutes) || 0)) : 0;
     const sohamMax = sohamSits.length ? Math.max(...sohamSits.map(s => Number(s.durationMinutes) || 0)) : 0;
 
-    // Zabir card
+    // Zabir Telemetry Card
     const zTotalEl = document.getElementById('z-total-mins');
     if (zTotalEl) zTotalEl.textContent = zabirMins > 0 ? (zabirMins === 11.13 ? '11m 8s' : this.formatMinutes(zabirMins)) : '0m';
     const zCleanEl = document.getElementById('z-clean-sits');
-    if (zCleanEl) zCleanEl.textContent = `${zabirClean} clean / ${zabirTimeouts} timeout`;
+    if (zCleanEl) zCleanEl.textContent = `${zabirClean} / ${zabirTimeouts}`;
     const zLongEl = document.getElementById('z-longest-sit');
     if (zLongEl) zLongEl.textContent = zabirMax === 11.13 ? '11m 8s' : this.formatMinutes(zabirMax);
 
-    // Soham card
+    // Soham Telemetry Card
     const sTotalEl = document.getElementById('s-total-mins');
     if (sTotalEl) sTotalEl.textContent = this.formatMinutes(sohamMins);
     const sCleanEl = document.getElementById('s-clean-sits');
-    if (sCleanEl) sCleanEl.textContent = `${sohamClean} clean / ${sohamTimeouts} timeout`;
+    if (sCleanEl) sCleanEl.textContent = `${sohamClean} / ${sohamTimeouts}`;
     const sLongEl = document.getElementById('s-longest-sit');
     if (sLongEl) sLongEl.textContent = this.formatMinutes(sohamMax);
   }
 
-  /* ---------------- PAST ENTRIES JOURNAL (SIT FEED) ---------------- */
+  /* ---------------- UNBROKEN CHRONICLE (FEED) ---------------- */
 
   renderFeed() {
     const list = document.getElementById('sit-feed-container');
@@ -454,7 +556,6 @@ class AdhitthanaApp {
     const isZabir = s => s.user === 'Zabir' || (s.displayName && s.displayName.toLowerCase().includes('zabir'));
     const isSoham = s => s.user === 'Soham' || (s.displayName && s.displayName.toLowerCase().includes('soham'));
 
-    // Update Counts
     const zabirCount = this.allSits.filter(s => isZabir(s)).length;
     const sohamCount = this.allSits.filter(s => isSoham(s)).length;
 
@@ -473,7 +574,7 @@ class AdhitthanaApp {
     }
 
     if (filtered.length === 0) {
-      list.innerHTML = `<div class="feed-empty" style="color:var(--text-dim); text-align:center; padding:2rem;">No past sits match the selected filter. Log a session above!</div>`;
+      list.innerHTML = `<div class="feed-empty" style="color:var(--text-dim); text-align:center; padding:2.5rem;">No past sits match the selected filter. Log a session in the Command Center above!</div>`;
       return;
     }
 
@@ -494,7 +595,7 @@ class AdhitthanaApp {
         <div class="sit-card ${userClass} ${statusClass}">
           <div class="sit-header">
             <div class="sit-user-meta">
-              <span class="user-pill ${isZ ? 'cyan' : 'purple'}">${userName}</span>
+              <span class="telemetry-pill-tag ${isZ ? 'cyan' : 'purple'}">${userName}</span>
               <span class="sit-date">${sit.date}</span>
             </div>
             <div class="sit-badges">
