@@ -1,17 +1,17 @@
 [
   {
-    "id": "sit_soham_20261015",
-    "user": "Soham",
-    "displayName": "Soham Sadhu",
-    "date": "2026-10-15",
+    "user": "Zabir",
+    "displayName": "Zabir",
+    "date": "2026-10-16",
     "durationMinutes": 15,
     "displayDuration": "15 mins",
     "targetMinutes": 15,
     "status": "completed",
     "movedAtMinutes": null,
     "movementReason": null,
-    "reflection": "15-minute Strong Determination Sit completed. Maintained stillness on the path to enlightenment.",
-    "timestamp": 1792072000000
+    "reflection": "Maintained unbroken stillness in meditation.",
+    "timestamp": 1792149778785,
+    "id": "sit_1792149778785_3m3tk7"
   },
   {
     "id": "sit_zabir_20261015",
@@ -26,5 +26,19 @@
     "movementReason": "Physical burn & urge to move",
     "reflection": "Called Time Out after 11m 8s of unbroken stillness. Honoring the rule of absolute honesty.",
     "timestamp": 1792072100000
+  },
+  {
+    "id": "sit_soham_20261015",
+    "user": "Soham",
+    "displayName": "Soham Sadhu",
+    "date": "2026-10-15",
+    "durationMinutes": 15,
+    "displayDuration": "15 mins",
+    "targetMinutes": 15,
+    "status": "completed",
+    "movedAtMinutes": null,
+    "movementReason": null,
+    "reflection": "15-minute Strong Determination Sit completed. Maintained unbroken stillness on the path to enlightenment.",
+    "timestamp": 1792072000000
   }
 ]
