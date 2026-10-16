@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
   <!-- Complete Inlined Stylesheet for Instant Zero-FOUC Bulletproof Delivery -->
-  <link rel="stylesheet" href="styles.css?v=3.1">
+  <link rel="stylesheet" href="styles.css?v=3.2">
   <style>
 /* =====================================================================
    ADHIṬṬHĀNA — AWWWARDS-TIER SCROLL-BASED ARCHITECTURE
@@ -1780,6 +1780,100 @@ html.lenis, html.lenis body {
   backdrop-filter: blur(16px);
 }
 
+
+/* Auto-Sync Realtime Status Card */
+.sync-status-card {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  border-radius: 14px;
+  padding: 1rem 1.15rem;
+  margin-top: 1rem;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
+}
+
+.sync-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--accent-cyan);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.live-dot-pulse {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 10px #10B981;
+  animation: pulseGlow 1.8s infinite;
+}
+
+@keyframes pulseGlow {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.25); opacity: 1; box-shadow: 0 0 16px #10B981; }
+  100% { transform: scale(0.95); opacity: 0.7; }
+}
+
+.sync-status-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.sync-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  background: rgba(11, 12, 14, 0.6);
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sync-meta-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.sync-meta-item .meta-label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+.sync-meta-item .meta-val {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: #FFF;
+  font-weight: 700;
+}
+
+.btn-sync-now {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(190, 242, 2, 0.15));
+  border: 1px solid var(--accent-cyan);
+  color: #FFF;
+  padding: 0.65rem 1rem;
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-sync-now:hover {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.35), rgba(190, 242, 2, 0.25));
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.4);
+}
+
+.sync-section-block {
+  margin-top: 1.15rem;
+}
+
 .modal-card {
   position: relative;
   z-index: 10;
@@ -2542,23 +2636,60 @@ html.lenis, html.lenis body {
       <button class="modal-close">&times;</button>
       <div class="modal-header">
         <div class="modal-title">
-          <span>☁️</span> Cloud Sync &amp; Backup
+          <span>🔄</span> Automatic Cloud Synchronization
         </div>
-        <div class="modal-subtitle">Seamless synchronization between Zabir &amp; Soham.</div>
+        <div class="modal-subtitle">Real-time automatic sync between Zabir &amp; Soham Sadhu across all devices.</div>
       </div>
 
-      <div class="form-group" style="margin-top: 1rem;">
-        <label class="form-field-label">GitHub Token (Direct Cloud Committer)</label>
+      <!-- Live Auto-Sync Status Card -->
+      <div class="sync-status-card">
+        <div class="sync-card-header">
+          <div class="live-dot-pulse"></div>
+          <strong>Live Cloud Auto-Sync Active</strong>
+        </div>
+        <p class="sync-status-desc">
+          Every sit logged on any phone or computer is automatically saved to the cloud repository and synchronized across all devices in real-time.
+        </p>
+        <div class="sync-meta-grid">
+          <div class="sync-meta-item">
+            <span class="meta-label">PEER NETWORK</span>
+            <span class="meta-val">Zabir &bull; Soham</span>
+          </div>
+          <div class="sync-meta-item">
+            <span class="meta-label">UPDATE FREQUENCY</span>
+            <span class="meta-val">Real-time (12s &amp; Focus)</span>
+          </div>
+        </div>
+        <button id="btn-force-sync" class="btn-sync-now" style="margin-top: 0.85rem; width: 100%;">
+          <span>⚡ Force Sync Now (Pull Cloud Data)</span>
+        </button>
+      </div>
+
+      <!-- 1-Click Peer Link -->
+      <div class="sync-section-block">
+        <label class="form-field-label">1-Click Share &amp; Connect Phone</label>
+        <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+          Send this link to Soham on WhatsApp. Opening it instantly links the phone with zero configuration needed.
+        </p>
+        <button id="btn-copy-device-link" class="btn-modal-action" style="width: 100%;">
+          <span>📲 Copy 1-Click Peer Sync Link</span>
+        </button>
+      </div>
+
+      <!-- Manual GitHub Token Override (Optional) -->
+      <div class="sync-section-block" style="margin-top: 1.25rem;">
+        <label class="form-field-label">Custom Cloud Token (Optional Override)</label>
         <div style="display: flex; gap: 0.6rem;">
-          <input type="password" id="input-gh-token" class="form-input" placeholder="ghp_... (stored securely in browser only)">
+          <input type="password" id="input-gh-token" class="form-input" placeholder="ghp_... (auto-configured by default)">
           <button id="btn-save-gh-token" class="btn-modal-action">Save</button>
         </div>
         <small style="color: var(--text-dim); display:block; margin-top:0.4rem;">
-          Commits sits directly to <code style="color:var(--accent-volt);">data/sits.json</code> so all devices stay synchronized.
+          Shared auto-sync key is already active. You only need this if you want to use a personal token.
         </small>
       </div>
 
-      <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: var(--border-strokes);">
+      <!-- Backup / Restore -->
+      <div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: var(--border-strokes);">
         <label class="form-field-label">Manual Backup &amp; Restore</label>
         <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
           <button id="btn-export-json" class="btn-modal-secondary" style="flex: 1;">
