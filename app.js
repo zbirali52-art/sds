@@ -643,11 +643,28 @@ class AdhitthanaApp {
       });
     });
 
-    // 10. Sync Modal
+    // 10. Sync Modal Handlers
     document.getElementById('btn-open-sync')?.addEventListener('click', () => {
       this.openModal('modal-sync');
       const tokenInput = document.getElementById('input-gh-token');
-      if (tokenInput) tokenInput.value = window.syncManager.githubToken || '';
+      if (tokenInput) tokenInput.value = localStorage.getItem(window.syncManager.githubTokenKey) || '';
+    });
+
+    document.getElementById('btn-force-sync')?.addEventListener('click', async () => {
+      this.showToast('🔄 Checking cloud for newest sits...');
+      await window.syncManager.pullFromCloud(false);
+      this.showToast('✅ Cloud synchronization check completed!');
+    });
+
+    document.getElementById('btn-copy-device-link')?.addEventListener('click', () => {
+      const link = `${window.location.origin}${window.location.pathname}`;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(link).then(() => {
+          this.showToast('📋 Peer link copied! Share this with Soham to sync automatically.');
+        });
+      } else {
+        prompt('Copy peer sync link:', link);
+      }
     });
 
     document.getElementById('btn-save-gh-token')?.addEventListener('click', async () => {
