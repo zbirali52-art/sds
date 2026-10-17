@@ -3,6 +3,20 @@
     {
       "user": "Soham",
       "displayName": "Soham Sadhu",
+      "date": "2026-10-17",
+      "durationMinutes": 17,
+      "displayDuration": "17 mins",
+      "targetMinutes": 20,
+      "status": "timeout",
+      "movedAtMinutes": 17,
+      "movementReason": "Other",
+      "reflection": "Found it hard to maintain focus on breath, back and eyes simultaneously. Nominal muscle twitches in the thigh and knee muscles. Stillness interrupted by coughing at 17th minute. Right part of the body found more still than the left. Lower part of body below the knees are always unfazed.",
+      "timestamp": 1792233866450,
+      "id": "sit_1792233866450_2j3vv3"
+    },
+    {
+      "user": "Soham",
+      "displayName": "Soham Sadhu",
       "date": "2026-10-16",
       "durationMinutes": 20,
       "displayDuration": "20 mins",
@@ -63,5 +77,5 @@
     "sit_1792151435907_mryaj8",
     "sit_1792141279867_jjs0c8"
   ],
-  "lastUpdated": 1792153549306
+  "lastUpdated": 1792233866904
 }
