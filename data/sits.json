@@ -3,6 +3,20 @@
     {
       "user": "Soham",
       "displayName": "Soham Sadhu",
+      "date": "2026-10-21",
+      "durationMinutes": 9.1,
+      "displayDuration": "9m 6s",
+      "targetMinutes": 20,
+      "status": "completed",
+      "movedAtMinutes": null,
+      "movementReason": null,
+      "reflection": "Realised it's harder with open eyes",
+      "timestamp": 1792592318914,
+      "id": "sit_1792592318914_l9epa6"
+    },
+    {
+      "user": "Soham",
+      "displayName": "Soham Sadhu",
       "date": "2026-10-17",
       "durationMinutes": 17,
       "displayDuration": "17 mins",
@@ -77,5 +91,5 @@
     "sit_1792151435907_mryaj8",
     "sit_1792141279867_jjs0c8"
   ],
-  "lastUpdated": 1792233866904
+  "lastUpdated": 1792592319130
 }
