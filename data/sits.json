@@ -4,6 +4,20 @@
       "user": "Soham",
       "displayName": "Soham Sadhu",
       "date": "2026-10-22",
+      "durationMinutes": 6.22,
+      "displayDuration": "6m 13s",
+      "targetMinutes": 20,
+      "status": "timeout",
+      "movedAtMinutes": 6.22,
+      "movementReason": "Other",
+      "reflection": "Impulsively moved out from the sit",
+      "timestamp": 1792665734109,
+      "id": "sit_1792665734109_tdxzrw"
+    },
+    {
+      "user": "Soham",
+      "displayName": "Soham Sadhu",
+      "date": "2026-10-22",
       "durationMinutes": 6.33,
       "displayDuration": "6m 20s",
       "targetMinutes": 20,
@@ -105,5 +119,5 @@
     "sit_1792151435907_mryaj8",
     "sit_1792141279867_jjs0c8"
   ],
-  "lastUpdated": 1792665274172
+  "lastUpdated": 1792665734415
 }
