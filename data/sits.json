@@ -3,6 +3,20 @@
     {
       "user": "Soham",
       "displayName": "Soham Sadhu",
+      "date": "2026-10-22",
+      "durationMinutes": 6.33,
+      "displayDuration": "6m 20s",
+      "targetMinutes": 20,
+      "status": "timeout",
+      "movedAtMinutes": 6.33,
+      "movementReason": "Other",
+      "reflection": "Turned head around to check if there were any hand movement. The brain did not even think twice not to make the head turn.",
+      "timestamp": 1792665273997,
+      "id": "sit_1792665273997_u98owi"
+    },
+    {
+      "user": "Soham",
+      "displayName": "Soham Sadhu",
       "date": "2026-10-21",
       "durationMinutes": 9.1,
       "displayDuration": "9m 6s",
@@ -91,5 +105,5 @@
     "sit_1792151435907_mryaj8",
     "sit_1792141279867_jjs0c8"
   ],
-  "lastUpdated": 1792592319130
+  "lastUpdated": 1792665274172
 }
