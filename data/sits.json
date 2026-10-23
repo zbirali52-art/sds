@@ -4,6 +4,20 @@
       "user": "Soham",
       "displayName": "Soham Sadhu",
       "date": "2026-10-22",
+      "durationMinutes": 19,
+      "displayDuration": "19 mins",
+      "targetMinutes": 20,
+      "status": "timeout",
+      "movedAtMinutes": 19,
+      "movementReason": "Other",
+      "reflection": "Fingers and knees move involuntarily and was unable to come back to focus mentally. Moved out impulsively at 19th min",
+      "timestamp": 1792752237285,
+      "id": "sit_1792752237285_ygdg0s"
+    },
+    {
+      "user": "Soham",
+      "displayName": "Soham Sadhu",
+      "date": "2026-10-22",
       "durationMinutes": 6.22,
       "displayDuration": "6m 13s",
       "targetMinutes": 20,
@@ -119,5 +133,5 @@
     "sit_1792151435907_mryaj8",
     "sit_1792141279867_jjs0c8"
   ],
-  "lastUpdated": 1792665734415
+  "lastUpdated": 1792752237572
 }
